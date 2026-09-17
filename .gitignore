@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Production build output — always built fresh by CI/Vercel, never committed.
+# (A stale committed dist/ can be mistaken for, or served instead of,
+# the real build output.)
+dist/
+dist-ssr/
+*.local
+
+# Vercel CLI artifacts
+.vercel/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
