@@ -2,6 +2,8 @@ import { Link, Navigate, Route, Routes } from 'react-router-dom';
 import { AdminLayout, PublicLayout } from './layouts/layouts';
 import { HomePage } from './pages/public/Home';
 import { FleetPage } from './pages/public/Fleet';
+import { VehicleDetailPage } from './pages/public/VehicleDetail';
+import { BookingsPage as MyBookingsPage } from './pages/public/Bookings';
 import { RentalOptionsPage } from './pages/public/RentalOptions';
 import { RatesPage } from './pages/public/Rates';
 import { HowItWorksPage } from './pages/public/HowItWorks';
@@ -39,6 +41,8 @@ export default function App() {
       <Route element={<PublicLayout />}>
         <Route index element={<HomePage />} />
         <Route path="fleet" element={<FleetPage />} />
+        <Route path="fleet/:slug" element={<VehicleDetailPage />} />
+        <Route path="bookings" element={<MyBookingsPage />} />
         <Route path="rental-options" element={<RentalOptionsPage />} />
         <Route path="rates" element={<RatesPage />} />
         <Route path="how-it-works" element={<HowItWorksPage />} />

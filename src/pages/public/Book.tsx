@@ -1,8 +1,11 @@
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import type { Booking, BookingDraft } from '../../types';
+import type { Booking, BookingDraft, SelfDriveZone, Vehicle, WithDriverZone } from '../../types';
 import { VEHICLES } from '../../data/business';
-import { StatusBadge, VehicleArt } from '../../components/site';
+import { vehicleMeta } from '../../data/fleet';
+import { StatusBadge } from '../../components/site';
+import { RentalTypeExplainer } from '../../components/booking';
+import { VehiclePhoto, useVehiclePhotos } from '../../components/showroom';
 import { useAppStore } from '../../store/AppStore';
 import {
   estimateSelfDrive,
@@ -15,7 +18,7 @@ import {
   todayISO,
 } from '../../utils/booking';
 
-const STEPS = ['Vehicle', 'Rental type', 'Dates', 'Destination', 'Your details', 'Review'];
+const STEPS = ['Car', 'Rental', 'Dates', 'Destination', 'Details', 'Review'] as const;
 
 const EMPTY: BookingDraft = {
   vehicleId: '',
@@ -31,10 +34,14 @@ const EMPTY: BookingDraft = {
   notes: '',
 };
 
+function validZone(z: string | null): z is SelfDriveZone {
+  return z === 'bislig-city' || z === '2nd-district' || z === '1st-district-caraga' || z === 'outside-caraga';
+}
+
+/** CompactBookingFlow — the core reservation product. */
 export function BookPage() {
   const { settings, vehicleStatus, addBooking, upsertCustomerFromBooking } = useAppStore();
   const [params] = useSearchParams();
-  const preselected = params.get('vehicle') ?? '';
 
   const [step, setStep] = useState(0);
   const [tried, setTried] = useState(false);
@@ -43,13 +50,18 @@ export function BookPage() {
     const typeParam = (params.get('type') ?? '').toLowerCase();
     const pickupParam = params.get('pickup') ?? '';
     const returnParam = params.get('return') ?? '';
+    const vehicleParam = params.get('vehicle') ?? '';
+    const zoneParam = params.get('zone');
     const dateOk = (d: string) => /^\d{4}-\d{2}-\d{2}$/.test(d);
+    const withParam = typeParam === 'with' || typeParam === 'with-driver';
+    const vehicleOk = VEHICLES.some((v) => v.id === vehicleParam);
     return {
       ...EMPTY,
-      vehicleId: VEHICLES.some((v) => v.id === preselected) ? preselected : '',
-      rentalType: typeParam === 'with' || typeParam === 'with-driver' ? 'with-driver' : 'self-drive',
+      vehicleId: vehicleOk ? vehicleParam : '',
+      rentalType: withParam ? 'with-driver' : 'self-drive',
       pickupDate: dateOk(pickupParam) ? pickupParam : '',
       returnDate: dateOk(returnParam) ? returnParam : '',
+      selfDriveZone: validZone(zoneParam) ? zoneParam : 'bislig-city',
     };
   });
 
@@ -65,7 +77,6 @@ export function BookPage() {
       ? (settings.selfDriveRates.find((r) => r.zone === draft.selfDriveZone)?.label ?? '')
       : (settings.withDriverRates.find((r) => r.zone === draft.withDriverZone)?.label ?? '');
 
-  /** Per-step validation; error strings keyed by field. */
   const errors: Record<string, string> = useMemo(() => {
     const e: Record<string, string> = {};
     if (step === 0 && !draft.vehicleId) e.vehicle = 'Select a vehicle to continue.';
@@ -73,7 +84,8 @@ export function BookPage() {
       if (!draft.pickupDate) e.pickup = 'Choose a pickup date.';
       else if (draft.pickupDate < today) e.pickup = 'Pickup date cannot be in the past.';
       if (!draft.returnDate) e.return = 'Choose a return date.';
-      else if (draft.returnDate < draft.pickupDate) e.return = 'Return date cannot be before pickup date.';
+      else if (draft.pickupDate && draft.returnDate < draft.pickupDate)
+        e.return = 'Return date cannot be before pickup date.';
     }
     if (step === 3 && draft.destination.trim().length < 3)
       e.destination = 'Tell GoDrive where you are headed (at least 3 characters).';
@@ -143,16 +155,15 @@ export function BookPage() {
               <div className="success-row"><span>Return</span><b>{formatDateLong(done.returnDate)} · {done.rentalDays} day{done.rentalDays === 1 ? '' : 's'}</b></div>
               <div className="success-row"><span>Destination</span><b>{done.destination}</b></div>
               <div className="success-row"><span>Customer</span><b>{done.fullName} · {done.mobile}</b></div>
-              {done.estimatedAmount !== null && (
+              {done.estimatedAmount !== null ? (
                 <div className="success-row"><span>Estimate</span><b>{formatPeso(done.estimatedAmount)} (self-drive)</b></div>
-              )}
-              {done.estimatedAmount === null && (
+              ) : (
                 <div className="success-row"><span>Driver rate</span><b>To be confirmed with GoDrive</b></div>
               )}
             </div>
           </div>
           <div className="mt-24" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            <Link to="/fleet" className="btn btn-outline">Browse Fleet</Link>
+            <Link to={`/bookings?ref=${done.reference}`} className="btn btn-outline">Track this booking</Link>
             <Link to="/" className="btn btn-primary">Back to Home</Link>
           </div>
         </div>
@@ -163,94 +174,68 @@ export function BookPage() {
   const showErr = (k: string) => tried && errors[k];
 
   return (
-    <section className="section">
-      <div className="container">
-        <div className="book-head">
-          <div className="kick"><span>Reservation — No account needed</span><span>Step {step + 1} / {STEPS.length}</span></div>
-          <h1 className="h-section">Request your vehicle.</h1>
-          <p className="lede mt-16">Move backward at any time — nothing you entered is lost. GoDrive confirms every request personally.</p>
+    <section className="flow-wrap">
+      <div className="container flow-inner">
+        <div className="flow-head">
+          <div className="flow-kick">
+            <span>Reservation · No account needed</span>
+            <span>{String(step + 1).padStart(2, '0')} / {String(STEPS.length).padStart(2, '0')}</span>
+          </div>
+          <h1 className="flow-title">{STEPS[step]}.</h1>
         </div>
 
-        <div className="psteps" aria-label="Booking progress">
+        <ol className="flow-steps" aria-label="Booking progress">
           {STEPS.map((s, i) => (
-            <div key={s} className={`pstep${i < step ? ' done' : ''}${i === step ? ' now' : ''}`}>
-              <span className="n">{String(i + 1).padStart(2, '0')}</span>
-              <span className="t">{s}</span>
-            </div>
+            <li key={s}>
+              <button
+                className={`flow-step${i < step ? ' done' : ''}${i === step ? ' now' : ''}`}
+                onClick={() => {
+                  if (i < step) {
+                    setTried(false);
+                    setStep(i);
+                  }
+                }}
+                disabled={i > step}
+                aria-current={i === step ? 'step' : undefined}
+              >
+                <i>{String(i + 1).padStart(2, '0')}</i>
+                <span>{s}</span>
+              </button>
+            </li>
           ))}
-        </div>
-        <p className="book-step-label">Now — {STEPS[step]}</p>
+        </ol>
 
-        <div className="book-layout mt-24">
-          <div className="panel panel-pad">
+        <div className="flow-layout">
+          <div className="flow-card" key={step}>
             {step === 0 && (
-              <div>
-                <h2 className="h-sub">Select vehicle</h2>
-                <p className="small mt-16">Step 1 of your request. Availability shown is a local demo.</p>
-                <div className="option-cards mt-24">
-                  {VEHICLES.map((v) => {
-                    const st = vehicleStatus[v.id] ?? 'Available';
-                    const selected = draft.vehicleId === v.id;
-                    return (
-                      <button
-                        key={v.id}
-                        className={`option-card${selected ? ' selected' : ''}`}
-                        onClick={() => set('vehicleId', v.id)}
-                        aria-pressed={selected}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'center' }}>
-                          <b>{v.name}</b>
-                          <StatusBadge status={st} />
-                        </div>
-                        <div style={{ margin: '10px 0' }}><VehicleArt silhouette={v.silhouette} title={v.name} /></div>
-                        <p>{v.bodyType} · {v.transmission}{v.capacity ? ` · ${v.capacity}` : ''}{v.year ? ` · ${v.year}` : ''}</p>
-                        <p style={{ color: 'var(--navy-800)', fontWeight: 700 }}>From {formatPeso(v.startingRatePerDay)} / day self-drive</p>
-                      </button>
-                    );
-                  })}
+              <div className="flow-pane">
+                <p className="flow-lede">Which car fits your trip?</p>
+                <div className="flow-cars">
+                  {VEHICLES.map((v) => (
+                    <CarPick
+                      key={v.id}
+                      vehicleId={v.id}
+                      selected={draft.vehicleId === v.id}
+                      onPick={() => set('vehicleId', v.id)}
+                      status={vehicleStatus[v.id] ?? 'Available'}
+                    />
+                  ))}
                 </div>
                 {showErr('vehicle') && <p className="field-error mt-16">{errors.vehicle}</p>}
               </div>
             )}
 
             {step === 1 && (
-              <div>
-                <h2 className="h-sub">Select rental type</h2>
-                <p className="small mt-16">Step 2 of your request.</p>
-                <div className="option-cards two mt-24">
-                  <button
-                    className={`option-card${draft.rentalType === 'self-drive' ? ' selected' : ''}`}
-                    onClick={() => set('rentalType', 'self-drive')}
-                    aria-pressed={draft.rentalType === 'self-drive'}
-                  >
-                    <b>Self-drive</b>
-                    <p>You drive. Valid license + proof of income required. Daily zone rates.</p>
-                  </button>
-                  <button
-                    className={`option-card${draft.rentalType === 'with-driver' ? ' selected' : ''}`}
-                    onClick={() => set('rentalType', 'with-driver')}
-                    aria-pressed={draft.rentalType === 'with-driver'}
-                  >
-                    <b>With driver</b>
-                    <p>A professional GoDrive driver handles the trip. Destination-based rate.</p>
-                  </button>
-                </div>
-                {draft.rentalType === 'self-drive' ? (
-                  <div className="note-box mt-24">
-                    Self-drive requires a <b>valid driver&apos;s license</b> and <b>proof of income</b> — they establish your ability
-                    to answer for rental liabilities in case of an untoward incident.
-                  </div>
-                ) : (
-                  <div className="note-box warn mt-24">{settings.withDriverRateUnitNote} {settings.driverExpenseNote}</div>
-                )}
+              <div className="flow-pane">
+                <p className="flow-lede">How will you travel?</p>
+                <RentalTypeExplainer value={draft.rentalType} onChange={(v) => set('rentalType', v)} />
               </div>
             )}
 
             {step === 2 && (
-              <div>
-                <h2 className="h-sub">Pickup &amp; return dates</h2>
-                <p className="small mt-16">Steps 3–4 of your request. Same-day pickup and return counts as 1 day.</p>
-                <div className="form-grid two mt-24">
+              <div className="flow-pane">
+                <p className="flow-lede">When do you need the car?</p>
+                <div className="form-grid two">
                   <div className="field">
                     <label htmlFor="pickup">Pickup date</label>
                     <input
@@ -270,19 +255,21 @@ export function BookPage() {
                     {showErr('return') && <span className="field-error">{errors.return}</span>}
                   </div>
                 </div>
-                {days > 0 && (
+                {days > 0 ? (
                   <div className="note-box mt-24">
                     <b>{days} day{days === 1 ? '' : 's'}</b> · {formatDateLong(draft.pickupDate)} → {formatDateLong(draft.returnDate)}
+                    <span className="hint" style={{ display: 'block', marginTop: 4 }}>Same-day pickup and return counts as 1 day.</span>
                   </div>
+                ) : (
+                  <p className="hint mt-24">Same-day pickup and return counts as 1 day.</p>
                 )}
               </div>
             )}
 
             {step === 3 && (
-              <div>
-                <h2 className="h-sub">Destination / area</h2>
-                <p className="small mt-16">Step 5 of your request. Your zone determines the rate.</p>
-                <div className="form-grid mt-24">
+              <div className="flow-pane">
+                <p className="flow-lede">Where are you headed?</p>
+                <div className="form-grid">
                   <div className="field">
                     <label htmlFor="dest">Destination details</label>
                     <input
@@ -295,7 +282,10 @@ export function BookPage() {
                   {draft.rentalType === 'self-drive' ? (
                     <div className="field">
                       <label htmlFor="zone">Rate zone</label>
-                      <select id="zone" value={draft.selfDriveZone} onChange={(e) => set('selfDriveZone', e.target.value as BookingDraft['selfDriveZone'])}>
+                      <select
+                        id="zone" value={draft.selfDriveZone}
+                        onChange={(e) => set('selfDriveZone', e.target.value as SelfDriveZone)}
+                      >
                         {settings.selfDriveRates.map((r) => (
                           <option key={r.zone} value={r.zone}>{r.label} — {formatPeso(r.amountPerDay)}/day</option>
                         ))}
@@ -304,7 +294,10 @@ export function BookPage() {
                   ) : (
                     <div className="field">
                       <label htmlFor="wzone">Destination band</label>
-                      <select id="wzone" value={draft.withDriverZone} onChange={(e) => set('withDriverZone', e.target.value as BookingDraft['withDriverZone'])}>
+                      <select
+                        id="wzone" value={draft.withDriverZone}
+                        onChange={(e) => set('withDriverZone', e.target.value as WithDriverZone)}
+                      >
                         {settings.withDriverRates.map((r) => (
                           <option key={r.zone} value={r.zone}>{r.label} — {formatPeso(r.amount)}</option>
                         ))}
@@ -317,10 +310,9 @@ export function BookPage() {
             )}
 
             {step === 4 && (
-              <div>
-                <h2 className="h-sub">Your details</h2>
-                <p className="small mt-16">Steps 6–7 of your request. GoDrive uses these to confirm availability.</p>
-                <div className="form-grid two mt-24">
+              <div className="flow-pane">
+                <p className="flow-lede">Who is booking?</p>
+                <div className="form-grid two">
                   <div className="field">
                     <label htmlFor="name">Full name</label>
                     <input id="name" type="text" placeholder="e.g. Juan D. Cruz" value={draft.fullName} onChange={(e) => set('fullName', e.target.value)} className={showErr('name') ? 'invalid' : ''} />
@@ -339,18 +331,17 @@ export function BookPage() {
                     {showErr('email') && <span className="field-error">{errors.email}</span>}
                   </div>
                   <div className="field">
-                    <label htmlFor="notes">Notes / special requests <span style={{ fontWeight: 500, textTransform: 'none', letterSpacing: 0 }}>(optional)</span></label>
-                    <textarea id="notes" placeholder="Early pickup, extra luggage space, with-driver overnight…" value={draft.notes} onChange={(e) => set('notes', e.target.value)} />
+                    <label htmlFor="notes">Notes <span style={{ fontWeight: 500, textTransform: 'none', letterSpacing: 0 }}>(optional)</span></label>
+                    <textarea id="notes" placeholder="Early pickup, extra luggage space, overnight…" value={draft.notes} onChange={(e) => set('notes', e.target.value)} />
                   </div>
                 </div>
               </div>
             )}
 
             {step === 5 && (
-              <div>
-                <h2 className="h-sub">Review booking</h2>
-                <p className="small mt-16">Steps 8–9. Check everything, then submit your request.</p>
-                <div className="mt-24">
+              <div className="flow-pane">
+                <p className="flow-lede">Check everything, then submit.</p>
+                <div className="flow-review">
                   <div className="kv"><span>Vehicle</span><b>{vehicle?.name ?? '—'}</b></div>
                   <div className="kv"><span>Rental type</span><b>{draft.rentalType === 'self-drive' ? 'Self-drive' : 'With driver'}</b></div>
                   <div className="kv"><span>Pickup</span><b>{formatDateLong(draft.pickupDate)}</b></div>
@@ -363,9 +354,9 @@ export function BookPage() {
               </div>
             )}
 
-            <div className="book-nav">
+            <div className="flow-nav">
               {step > 0 ? (
-                <button className="btn btn-outline" onClick={goBack}>Back</button>
+                <button className="btn btn-outline" onClick={goBack}>← Back</button>
               ) : <span />}
               {step < STEPS.length - 1 ? (
                 <button className="btn btn-primary" onClick={goNext}>Continue <span className="arr" aria-hidden="true">→</span></button>
@@ -375,7 +366,7 @@ export function BookPage() {
             </div>
           </div>
 
-          <aside className="summary" aria-label="Booking summary">
+          <aside className="summary flow-summary" aria-label="Booking summary">
             <div className="summary-head"><span>Your request</span><i aria-hidden="true" /></div>
             <div className="summary-body">
               <div className="summary-row"><span>Vehicle</span><b>{vehicle?.name ?? 'Not selected'}</b></div>
@@ -403,7 +394,51 @@ export function BookPage() {
             </div>
           </aside>
         </div>
+
+        <div className="flow-sticky">
+          <div>
+            <b>{vehicle?.name ?? 'Select a vehicle'}</b>
+            <small>
+              {draft.rentalType === 'self-drive'
+                ? (amount !== null && days > 0 ? `${formatPeso(amount)} · ${days}d` : 'Estimate appears here')
+                : 'Driver rate · to be confirmed'}
+            </small>
+          </div>
+          {step < STEPS.length - 1 ? (
+            <button className="btn btn-primary btn-sm" onClick={goNext}>Continue →</button>
+          ) : (
+            <button className="btn btn-primary btn-sm" onClick={submit}>Submit →</button>
+          )}
+        </div>
       </div>
     </section>
+  );
+}
+
+function CarPick({
+  vehicleId,
+  selected,
+  onPick,
+  status,
+}: {
+  vehicleId: string;
+  selected: boolean;
+  onPick: () => void;
+  status: string;
+}) {
+  const v = VEHICLES.find((x) => x.id === vehicleId) as Vehicle;
+  const { photos } = useVehiclePhotos(v.id);
+  return (
+    <button className={`car-pick${selected ? ' selected' : ''}`} onClick={onPick} aria-pressed={selected}>
+      <span className="car-pick-media">
+        <VehiclePhoto vehicle={v} src={photos[0]} tone="light" />
+      </span>
+      <span className="car-pick-info">
+        <span className="car-pick-top"><b>{v.name}</b><StatusBadge status={status} /></span>
+        <small>{vehicleMeta(v.id)?.tag ?? v.bodyType} · {v.transmission}</small>
+        <small className="car-pick-link">From {formatPeso(v.startingRatePerDay)} / day · full details on the Cars page →</small>
+      </span>
+      <span className="car-pick-check" aria-hidden="true">{selected ? '●' : '○'}</span>
+    </button>
   );
 }

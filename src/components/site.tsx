@@ -259,21 +259,28 @@ export function Accordion({
   );
 }
 
-const NAV = [
-  { to: '/fleet', label: 'Fleet', n: '01' },
-  { to: '/rental-options', label: 'Rental Options', n: '02' },
-  { to: '/rates', label: 'Rates', n: '03' },
-  { to: '/how-it-works', label: 'How It Works', n: '04' },
-  { to: '/faq', label: 'FAQ', n: '05' },
-  { to: '/contact', label: 'Contact', n: '06' },
+const NAV_PRIMARY = [
+  { to: '/', label: 'Home', n: '01', end: true },
+  { to: '/fleet', label: 'Cars', n: '02' },
+  { to: '/bookings', label: 'Bookings', n: '03' },
+  { to: '/contact', label: 'Contact', n: '04' },
+];
+
+const NAV_MORE = [
+  { to: '/how-it-works', label: 'How It Works', hint: 'Request to drive in 5 moves' },
+  { to: '/rates', label: 'Rates', hint: 'Priced by destination' },
+  { to: '/rental-options', label: 'Requirements', hint: 'License + proof of income' },
+  { to: '/faq', label: 'FAQ', hint: 'Good to know' },
+  { to: '/contact', label: 'Contact', hint: 'Talk to GoDrive directly' },
 ];
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const [more, setMore] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
-  useEffect(() => setOpen(false), [location.pathname]);
+  useEffect(() => { setOpen(false); setMore(false); }, [location.pathname]);
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
     onScroll();
@@ -286,6 +293,13 @@ export function SiteHeader() {
       document.body.style.overflow = '';
     };
   }, [open ]);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setMore(false); setOpen(false); }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
 
   return (
     <>
@@ -299,13 +313,33 @@ export function SiteHeader() {
             </span>
           </Link>
           <nav className="nav-desktop" aria-label="Primary">
-            {NAV.map((n) => (
-              <NavLink key={n.to} to={n.to} className={({ isActive }) => (isActive ? 'active' : '')}>
+            {NAV_PRIMARY.map((n) => (
+              <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => (isActive ? 'active' : '')}>
                 {n.label}
               </NavLink>
             ))}
+            <div className="nav-more-wrap">
+              <button
+                className={`nav-more-btn${more ? ' on' : ''}`}
+                onClick={() => setMore((m) => !m)}
+                aria-expanded={more}
+                aria-haspopup="true"
+              >
+                Menu <span aria-hidden="true">{more ? '×' : '+'}</span>
+              </button>
+              {more && (
+                <div className="nav-more-drop" role="menu">
+                  {NAV_MORE.map((n) => (
+                    <Link key={n.label} to={n.to} role="menuitem">
+                      <b>{n.label}</b>
+                      <small>{n.hint}</small>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
             <Link to="/book" className="btn btn-primary btn-sm header-cta">
-              Book Now <span className="arr" aria-hidden="true">→</span>
+              Book <span className="arr" aria-hidden="true">→</span>
             </Link>
           </nav>
           <button
@@ -320,10 +354,16 @@ export function SiteHeader() {
       </header>
       {open && (
         <nav className="mobile-menu" aria-label="Mobile">
-          {NAV.map((n) => (
-            <NavLink key={n.to} to={n.to} className={({ isActive }) => `mm-link${isActive ? ' on' : ''}`}>
+          {NAV_PRIMARY.map((n) => (
+            <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => `mm-link${isActive ? ' on' : ''}`}>
               <small>{n.n}</small> {n.label}
             </NavLink>
+          ))}
+          <div className="mm-sep">More</div>
+          {NAV_MORE.map((n) => (
+            <Link key={n.label} to={n.to} className="mm-sub">
+              {n.label} <span aria-hidden="true">→</span>
+            </Link>
           ))}
           <div className="mm-foot">
             <Link to="/book" className="btn btn-light btn-block">
@@ -362,10 +402,10 @@ export function SiteFooter() {
         <div>
           <h4>Explore</h4>
           <ul className="footer-links">
-            <li><Link to="/fleet">Fleet</Link></li>
-            <li><Link to="/rental-options">Rental Options</Link></li>
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/fleet">Cars</Link></li>
+            <li><Link to="/bookings">My Booking</Link></li>
             <li><Link to="/rates">Rates</Link></li>
-            <li><Link to="/how-it-works">How It Works</Link></li>
             <li><Link to="/faq">FAQ</Link></li>
             <li><Link to="/book">Book Now</Link></li>
           </ul>
