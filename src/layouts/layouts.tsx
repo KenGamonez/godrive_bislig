@@ -1,5 +1,6 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { SiteHeader, SiteFooter, BrandLogo } from '../components/site';
+import { FloatingDock } from '../chat/FloatingDock';
 import { useAppStore } from '../store/AppStore';
 
 export function PublicLayout() {
@@ -11,6 +12,7 @@ export function PublicLayout() {
         <Outlet />
       </main>
       <SiteFooter />
+      <FloatingDock />
     </>
   );
 }

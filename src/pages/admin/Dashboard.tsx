@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { VEHICLES } from '../../data/business';
 import { StatusBadge } from '../../components/site';
+import { OwnerMessages } from '../../chat/OwnerMessages';
 import { useAppStore } from '../../store/AppStore';
 import { formatDateLong, formatPeso, todayISO } from '../../utils/booking';
 
@@ -258,6 +259,8 @@ export function DashboardPage() {
           </ul>
         )}
       </section>
+      {/* ============ 7. MESSAGES ============ */}
+      <OwnerMessages />
     </>
   );
 }
