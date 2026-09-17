@@ -83,7 +83,7 @@ function CarCard({
     <Reveal delay={(index % 2) * 0.05}>
       <article className="car-card">
         <Link to={`/fleet/${vehicleSlug(v)}`} className="car-media" aria-label={`View ${v.name}`}>
-          <VehiclePhoto vehicle={v} src={photos[0]} tone="dark" />
+          <VehiclePhoto vehicle={v} src={photos[0]?.src} tone="dark" />
           <span className="car-num" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
         </Link>
         <div className="car-body">

@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { SiteHeader, SiteFooter } from '../components/site';
+import { SiteHeader, SiteFooter, BrandLogo } from '../components/site';
 import { useAppStore } from '../store/AppStore';
 
 export function PublicLayout() {
@@ -56,12 +56,8 @@ export function AdminLayout() {
     <div className="admin-shell">
       <aside className="admin-side">
         <div className="admin-side-inner">
-          <Link to="/" className="brand" style={{ textDecoration: 'none' }}>
-            <span className="brand-mark" style={{ background: '#fff', color: '#0A2148' }}>G</span>
-            <span className="brand-text">
-              <strong>GoDrive</strong>
-              <small>OWNER CONSOLE</small>
-            </span>
+          <Link to="/" className="brand" style={{ textDecoration: 'none' }} aria-label="GoDrive — home">
+            <BrandLogo onDark />
           </Link>
           <span className="demo-tag mt-16" style={{ background: 'transparent', color: '#8fa3c8', borderColor: 'rgba(255,255,255,0.2)' }}>
             Demo data — local only

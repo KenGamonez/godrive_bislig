@@ -12,13 +12,14 @@ import type { RentalType } from '../../types';
 export function VehicleDetailPage() {
   const { slug = '' } = useParams();
   const vehicle = vehicleBySlug(slug);
-  const { vehicleStatus, settings } = useAppStore();
+  const { vehicleStatus, settings, vehicleRates } = useAppStore();
   const [rental, setRental] = useState<RentalType>('self-drive');
 
   if (!vehicle) return <Navigate to="/fleet" replace />;
 
   const meta = vehicleMeta(vehicle.id);
   const status = vehicleStatus[vehicle.id] ?? 'Available';
+  const rates = vehicleRates(vehicle.id);
   const bookTo =
     rental === 'self-drive' ? `/book?vehicle=${vehicle.id}&type=self` : `/book?vehicle=${vehicle.id}&type=with`;
 
@@ -75,7 +76,7 @@ export function VehicleDetailPage() {
               items={[
                 {
                   q: 'Rental areas & rates',
-                  a: `Self-drive: ${settings.selfDriveRates.map((r) => `${r.shortLabel} ${formatPeso(r.amountPerDay)}/day`).join(' · ')}. With-driver: ${settings.withDriverRates.map((r) => `${r.label} ${formatPeso(r.amount)}`).join(' · ')}. ${settings.withDriverRateUnitNote}`,
+                  a: `Self-drive: ${rates.map((r) => `${r.shortLabel} ${formatPeso(r.amountPerDay)}/day`).join(' · ')}. With-driver: ${settings.withDriverRates.map((r) => `${r.label} ${formatPeso(r.amount)}`).join(' · ')}. ${settings.withDriverRateUnitNote}`,
                 },
                 {
                   q: 'Requirements',
@@ -114,7 +115,7 @@ function NextVehicle({ currentId }: { currentId: string }) {
   return (
     <Link to={`/fleet/${vehicleSlug(next)}`} className="vpage-next-card">
       <span className="fi-thumb sm">
-        <VehiclePhoto vehicle={next} src={photos[0]} tone="light" />
+        <VehiclePhoto vehicle={next} src={photos[0]?.src} tone="light" />
       </span>
       <span>
         <b>{next.name}</b>

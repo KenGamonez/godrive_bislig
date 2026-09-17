@@ -144,6 +144,19 @@ export function VehicleArt({
   );
 }
 
+/* Official GoDrive Bislig logo asset. On dark surfaces it sits in a white chip. */
+export function BrandLogo({ onDark = false }: { onDark?: boolean }) {
+  const img = (
+    <img
+      src="/logo/godrive-bislig-logo.png"
+      alt="GoDrive Bislig — Car Rental"
+      className="brand-logo"
+    />
+  );
+  if (onDark) return <span className="brand-chip">{img}</span>;
+  return img;
+}
+
 export function StatusBadge({ status }: { status: string }) {
   const cls =
     status === 'Available' ? 'badge-available'
@@ -306,11 +319,7 @@ export function SiteHeader() {
       <header className={`site-header${scrolled ? ' scrolled' : ''}`}>
         <div className="container site-header-inner">
           <Link to="/" className="brand" aria-label="GoDrive — home">
-            <span className="brand-mark" aria-hidden="true">G</span>
-            <span className="brand-text">
-              <strong>GoDrive</strong>
-              <small>CAR RENTAL · BISLIG</small>
-            </span>
+            <BrandLogo />
           </Link>
           <nav className="nav-desktop" aria-label="Primary">
             {NAV_PRIMARY.map((n) => (
@@ -390,12 +399,8 @@ export function SiteFooter() {
     <footer className="site-footer">
       <div className="container footer-grid">
         <div>
-          <Link to="/" className="brand" style={{ textDecoration: 'none' }}>
-            <span className="brand-mark" style={{ background: '#fff', color: '#0A2148' }}>G</span>
-            <span className="brand-text">
-              <strong style={{ color: '#fff' }}>GoDrive</strong>
-              <small style={{ color: '#8fa3c8' }}>CAR RENTAL · BISLIG</small>
-            </span>
+          <Link to="/" className="brand" style={{ textDecoration: 'none' }} aria-label="GoDrive — home">
+            <BrandLogo onDark />
           </Link>
           <p style={{ fontSize: 14.5, maxWidth: 400, marginTop: 18, lineHeight: 1.7 }}>{BUSINESS.description}</p>
         </div>

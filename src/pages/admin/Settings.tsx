@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { VEHICLES } from '../../data/business';
 import { useAppStore } from '../../store/AppStore';
+import { formatPeso } from '../../utils/booking';
 
 export function SettingsPage() {
-  const { settings, updateSettings } = useAppStore();
+  const { settings, updateSettings, vehicleRates, setVehicleRates } = useAppStore();
   const [saved, setSaved] = useState(false);
 
   const save = () => {
@@ -51,24 +53,32 @@ export function SettingsPage() {
 
       <div className="panel panel-pad">
         <h3 className="h-sub">Self-drive rates (₱ / day)</h3>
-        <p className="small mt-16">Zone rates feed the public Rates page and the booking estimator.</p>
-        <div className="form-grid two mt-24">
-          {settings.selfDriveRates.map((r, i) => (
-            <div className="field" key={r.zone}>
-              <label htmlFor={`sd-${r.zone}`}>{r.label}</label>
-              <input
-                id={`sd-${r.zone}`} inputMode="numeric" value={r.amountPerDay}
-                onChange={(e) => {
-                  const v = parseInt(e.target.value.replace(/[^0-9]/g, ''), 10);
-                  const next = settings.selfDriveRates.map((x, j) =>
-                    j === i ? { ...x, amountPerDay: Number.isFinite(v) ? v : 0 } : x,
-                  );
-                  updateSettings({ selfDriveRates: next });
-                }}
-              />
+        <p className="small mt-16">Each vehicle is priced by destination zone. These feed the public Rates page and the booking estimator.</p>
+        {VEHICLES.map((v) => {
+          const rates = vehicleRates(v.id);
+          return (
+            <div key={v.id} className="mt-24">
+              <h4 style={{ fontSize: 15 }}>{v.name} <span className="small">· from {formatPeso(v.startingRatePerDay)}/day</span></h4>
+              <div className="form-grid two mt-16">
+                {rates.map((r, i) => (
+                  <div className="field" key={r.zone}>
+                    <label htmlFor={`sd-${v.id}-${r.zone}`}>{r.label}</label>
+                    <input
+                      id={`sd-${v.id}-${r.zone}`} inputMode="numeric" value={r.amountPerDay}
+                      onChange={(e) => {
+                        const n = parseInt(e.target.value.replace(/[^0-9]/g, ''), 10);
+                        const next = rates.map((x, j) =>
+                          j === i ? { ...x, amountPerDay: Number.isFinite(n) ? n : 0 } : x,
+                        );
+                        setVehicleRates(v.id, next);
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
 
       <div className="panel panel-pad">

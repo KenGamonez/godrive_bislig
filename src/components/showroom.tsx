@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { RentalType, Vehicle } from '../types';
 import { VEHICLES } from '../data/business';
-import { fetchVehiclePhotos, vehicleMeta, vehicleSlug } from '../data/fleet';
+import { vehicleMeta, vehicleSlug } from '../data/fleet';
+import type { VehiclePhotoEntry } from '../data/fleet';
 import { StatusBadge, VehicleArt } from './site';
 import { formatPeso } from '../utils/booking';
 import { useAppStore } from '../store/AppStore';
@@ -12,28 +13,10 @@ import { useAppStore } from '../store/AppStore';
    placeholder otherwise. Never mixes photos between vehicles.
    ============================================================ */
 
-export function useVehiclePhotos(vehicleId: string): { photos: string[]; checked: boolean } {
-  const [photos, setPhotos] = useState<string[]>([]);
-  const [checked, setChecked] = useState(false);
-  useEffect(() => {
-    let live = true;
-    setPhotos([]);
-    setChecked(false);
-    const dir = vehicleMeta(vehicleId)?.photoDir;
-    if (!dir) {
-      setChecked(true);
-      return;
-    }
-    fetchVehiclePhotos(dir).then((found) => {
-      if (!live) return;
-      setPhotos(found);
-      setChecked(true);
-    });
-    return () => {
-      live = false;
-    };
-  }, [vehicleId]);
-  return { photos, checked };
+/* Static per-vehicle photo lists — explicit mapping, no probing, no mixing. */
+export function useVehiclePhotos(vehicleId: string): { photos: VehiclePhotoEntry[] } {
+  const meta = vehicleMeta(vehicleId);
+  return { photos: meta?.photos ?? [] };
 }
 
 export function VehiclePhoto({
@@ -41,11 +24,13 @@ export function VehiclePhoto({
   src,
   tone = 'dark',
   className = '',
+  eager = false,
 }: {
   vehicle: Vehicle;
   src?: string;
   tone?: 'light' | 'dark';
   className?: string;
+  eager?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
   useEffect(() => setFailed(false), [src]);
@@ -55,7 +40,8 @@ export function VehiclePhoto({
         src={src}
         alt={vehicle.name}
         className={`photo-img ${className}`}
-        loading="lazy"
+        loading={eager ? 'eager' : 'lazy'}
+        fetchPriority={eager ? 'high' : 'auto'}
         onError={() => setFailed(true)}
       />
     );
@@ -113,7 +99,7 @@ export function VehicleGallery({ vehicle }: { vehicle: Vehicle }) {
         }}
       >
         <div key={`${vehicle.id}-${index}`} className="gallery-frame">
-          <VehiclePhoto vehicle={vehicle} src={current} tone="dark" />
+          <VehiclePhoto vehicle={vehicle} src={current?.src} tone="dark" eager={index === 0} />
         </div>
         <span className="gallery-ghost" aria-hidden="true">
           {vehicle.silhouette === 'mpv' ? 'MPV' : 'SDN'}
@@ -125,6 +111,7 @@ export function VehicleGallery({ vehicle }: { vehicle: Vehicle }) {
             <span className="gallery-count">
               {String(index + 1).padStart(2, '0')} / {String(count).padStart(2, '0')}
             </span>
+            {current && <span className="gallery-caption">{current.label}</span>}
           </>
         )}
         {count === 1 && <span className="gallery-count">01 / 01</span>}
@@ -133,13 +120,14 @@ export function VehicleGallery({ vehicle }: { vehicle: Vehicle }) {
         <div className="gallery-thumbs" role="tablist" aria-label="Vehicle photos">
           {photos.map((p, i) => (
             <button
-              key={p}
+              key={p.src}
               role="tab"
               aria-selected={i === index}
+              aria-label={p.label}
               className={`gallery-thumb${i === index ? ' on' : ''}`}
               onClick={() => setIndex(i)}
             >
-              <img src={p} alt="" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+              <img src={p.src} alt="" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
             </button>
           ))}
         </div>
@@ -230,7 +218,7 @@ export function VehicleCarousel({
   const total = VEHICLES.length;
   const vehicle = VEHICLES[index];
   const { photos } = useVehiclePhotos(vehicle.id);
-  const heroPhoto = photos[0];
+  const heroPhoto = photos[0]?.src;
   const status = vehicleStatus[vehicle.id] ?? 'Available';
 
   const go = useCallback(
@@ -295,7 +283,7 @@ export function VehicleCarousel({
           <span className="showroom-index" aria-hidden="true">
             {String(index + 1).padStart(2, '0')}
           </span>
-          <VehiclePhoto vehicle={vehicle} src={heroPhoto} tone="dark" className="showroom-photo" />
+          <VehiclePhoto vehicle={vehicle} src={heroPhoto} tone="dark" className="showroom-photo" eager />
           <span className="showroom-ghost" aria-hidden="true">
             {(vehicleMeta(vehicle.id)?.tag ?? vehicle.bodyType).split(' ')[0].toUpperCase()}
           </span>

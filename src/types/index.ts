@@ -43,15 +43,17 @@ export interface Vehicle {
   capacity?: string;
   /** Only when provided by the business. */
   year?: number;
-  /** Design key for the local SVG illustration: 'mpv' | 'sedan'. */
+  /** Design key for the local SVG illustration fallback: 'mpv' | 'sedan'. */
   silhouette: 'mpv' | 'sedan';
   /** Self-drive starting rate per day in PHP (lowest zone). */
   startingRatePerDay: number;
   seats: string;
   blurb: string;
+  /** Per-vehicle self-drive rates — the business prices each unit by zone. */
+  rates: VehicleRate[];
 }
 
-export interface SelfDriveRate {
+export interface VehicleRate {
   zone: SelfDriveZone;
   label: string;
   shortLabel: string;
@@ -120,7 +122,6 @@ export interface BusinessSettings {
   /** Configurable copy for the with-driver rate unit (backend-owned later). */
   withDriverRateUnitNote: string;
   driverExpenseNote: string;
-  selfDriveRates: SelfDriveRate[];
   withDriverRates: WithDriverRate[];
   bookingNotice: string;
 }

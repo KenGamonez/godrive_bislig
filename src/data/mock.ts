@@ -44,7 +44,7 @@ export const INITIAL_BOOKINGS: Booking[] = [
     notes: 'Early pickup if possible.',
     status: 'Pending',
     rentalDays: 3,
-    estimatedAmount: 5400,
+    estimatedAmount: 7500,
     createdAt: '2026-09-15T08:20:00.000Z',
   },
   {
@@ -82,7 +82,7 @@ export const INITIAL_BOOKINGS: Booking[] = [
     notes: '',
     status: 'Ongoing',
     rentalDays: 3,
-    estimatedAmount: 4500,
+    estimatedAmount: 6900,
     createdAt: '2026-09-10T03:44:00.000Z',
   },
   {
@@ -101,7 +101,7 @@ export const INITIAL_BOOKINGS: Booking[] = [
     notes: 'Returned with full tank.',
     status: 'Completed',
     rentalDays: 3,
-    estimatedAmount: 5400,
+    estimatedAmount: 4500,
     createdAt: '2026-09-05T09:02:00.000Z',
   },
   {
@@ -139,7 +139,7 @@ export const INITIAL_BOOKINGS: Booking[] = [
     notes: '',
     status: 'Completed',
     rentalDays: 3,
-    estimatedAmount: 4500,
+    estimatedAmount: 6900,
     createdAt: '2026-08-30T07:15:00.000Z',
   },
   {
@@ -158,7 +158,7 @@ export const INITIAL_BOOKINGS: Booking[] = [
     notes: 'Cancelled by customer — schedule conflict.',
     status: 'Cancelled',
     rentalDays: 1,
-    estimatedAmount: 1500,
+    estimatedAmount: 1300,
     createdAt: '2026-09-14T02:00:00.000Z',
   },
 ];

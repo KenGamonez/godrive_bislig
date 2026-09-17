@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
+import { VEHICLES } from '../../data/business';
 import { FinalCta, Reveal, SectionHead } from '../../components/site';
 import { useAppStore } from '../../store/AppStore';
 import { formatPeso } from '../../utils/booking';
 
 export function RentalOptionsPage() {
-  const { settings } = useAppStore();
+  const { settings, vehicleRates } = useAppStore();
   return (
     <>
       <section className="page-hero">
@@ -30,9 +31,14 @@ export function RentalOptionsPage() {
                   <li><span>You drive</span><b>The vehicle is entrusted to you</b></li>
                   <li><span>License</span><b>Valid license required</b></li>
                   <li><span>Income proof</span><b>Required</b></li>
-                  {settings.selfDriveRates.map((r) => (
-                    <li key={r.zone}><span>{r.shortLabel}</span><b>{formatPeso(r.amountPerDay)} / day</b></li>
-                  ))}
+                  {VEHICLES.map((v) => {
+                    const rates = vehicleRates(v.id);
+                    const lo = Math.min(...rates.map((r) => r.amountPerDay));
+                    const hi = Math.max(...rates.map((r) => r.amountPerDay));
+                    return (
+                      <li key={v.id}><span>{v.name}</span><b>{formatPeso(lo)}–{formatPeso(hi)} / day</b></li>
+                    );
+                  })}
                 </ul>
                 <Link to="/book" className="btn btn-accent">
                   Book Self-Drive <span className="arr" aria-hidden="true">→</span>

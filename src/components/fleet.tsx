@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Vehicle } from '../types';
 import { StatusBadge, VehicleArt } from './site';
+import { VehiclePhoto, useVehiclePhotos } from './showroom';
 import { formatPeso } from '../utils/booking';
 import { useAppStore } from '../store/AppStore';
 
@@ -76,6 +77,8 @@ export function VehicleModal({ vehicle, onClose }: { vehicle: Vehicle | null; on
     };
   }, [vehicle, onClose]);
 
+  const { photos } = useVehiclePhotos(vehicle?.id ?? '');
+
   if (!vehicle) return null;
   const status = vehicleStatus[vehicle.id] ?? 'Available';
 
@@ -86,8 +89,8 @@ export function VehicleModal({ vehicle, onClose }: { vehicle: Vehicle | null; on
           <h3>{vehicle.name}</h3>
           <button className="modal-x" onClick={onClose} aria-label="Close">×</button>
         </div>
-        <div className="modal-stage">
-          <VehicleArt silhouette={vehicle.silhouette} tone="dark" title={vehicle.name} />
+        <div className="modal-stage photo">
+          <VehiclePhoto vehicle={vehicle} src={photos[0]?.src} tone="dark" eager />
           <span className="ghost" aria-hidden="true">{vehicle.silhouette === 'mpv' ? 'MPV' : 'SDN'}</span>
         </div>
         <div className="modal-body">

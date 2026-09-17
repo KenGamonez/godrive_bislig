@@ -15,8 +15,9 @@ import type {
   Customer,
   MaintenanceStatus,
   VehicleAvailability,
+  VehicleRate,
 } from '../types';
-import { DEFAULT_SETTINGS } from '../data/business';
+import { DEFAULT_SETTINGS, VEHICLES } from '../data/business';
 import {
   INITIAL_BOOKINGS,
   INITIAL_CUSTOMERS,
@@ -34,6 +35,9 @@ interface AppStoreValue {
   updateBookingStatus: (id: string, status: BookingStatus) => void;
   vehicleStatus: Record<string, VehicleAvailability>;
   setVehicleStatus: (vehicleId: string, status: VehicleAvailability) => void;
+  /** Per-vehicle self-drive rates (owner-editable override, else canonical). */
+  vehicleRates: (vehicleId: string) => VehicleRate[];
+  setVehicleRates: (vehicleId: string, rates: VehicleRate[]) => void;
   maintenance: Record<string, MaintenanceStatus>;
   setMaintenance: (vehicleId: string, status: MaintenanceStatus) => void;
   overrides: AvailabilityOverride[];
@@ -88,6 +92,9 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   const [customerNotes, setCustomerNotes] = useState<Record<string, string>>(() =>
     readJSON('godrive.customer-notes.v1', {}),
   );
+  const [rateOverrides, setRateOverrides] = useState<Record<string, VehicleRate[]>>(() =>
+    readJSON('godrive.vehicle-rates.v1', {}),
+  );
   const [session, setSession] = useState<AdminSession>(() =>
     readJSON('godrive.session.v1', { loggedIn: false, name: 'GoDrive Owner' }),
   );
@@ -98,6 +105,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => writeJSON('godrive.maintenance.v1', maintenance), [maintenance]);
   useEffect(() => writeJSON('godrive.overrides.v1', overrides), [overrides]);
   useEffect(() => writeJSON('godrive.customer-notes.v1', customerNotes), [customerNotes]);
+  useEffect(() => writeJSON('godrive.vehicle-rates.v1', rateOverrides), [rateOverrides]);
   useEffect(() => writeJSON('godrive.session.v1', session), [session]);
 
   const updateSettings = useCallback((patch: Partial<BusinessSettings>) => {
@@ -114,6 +122,19 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
 
   const setVehicleStatus = useCallback((vehicleId: string, status: VehicleAvailability) => {
     setVehicleStatusState((prev) => ({ ...prev, [vehicleId]: status }));
+  }, []);
+
+  const vehicleRates = useCallback(
+    (vehicleId: string): VehicleRate[] => {
+      const override = rateOverrides[vehicleId];
+      if (Array.isArray(override) && override.length > 0) return override;
+      return VEHICLES.find((v) => v.id === vehicleId)?.rates ?? [];
+    },
+    [rateOverrides],
+  );
+
+  const setVehicleRates = useCallback((vehicleId: string, rates: VehicleRate[]) => {
+    setRateOverrides((prev) => ({ ...prev, [vehicleId]: rates }));
   }, []);
 
   const setMaintenance = useCallback((vehicleId: string, status: MaintenanceStatus) => {
@@ -179,6 +200,8 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     updateBookingStatus,
     vehicleStatus,
     setVehicleStatus,
+    vehicleRates,
+    setVehicleRates,
     maintenance,
     setMaintenance,
     overrides,

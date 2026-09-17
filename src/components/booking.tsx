@@ -7,12 +7,16 @@ import { formatDateLong, formatPeso } from '../utils/booking';
 import { RentalTypeSelector } from './showroom';
 
 /* ============================================================
-   RateExplorer — compact interactive SELF-DRIVE | WITH-DRIVER
+   RateExplorer — compact interactive SELF-DRIVE | WITH-DRIVER.
+   Self-drive rates differ per vehicle; pick a unit first.
    ============================================================ */
 
 export function RateExplorer({ compact = false }: { compact?: boolean }) {
-  const { settings } = useAppStore();
+  const { settings, vehicleRates } = useAppStore();
   const [tab, setTab] = useState<RentalType>('self-drive');
+  const [vehicleId, setVehicleId] = useState(VEHICLES[0]?.id ?? '');
+  const vehicle = VEHICLES.find((v) => v.id === vehicleId) ?? VEHICLES[0];
+  const rates = vehicle ? vehicleRates(vehicle.id) : [];
   return (
     <div className={`ratex${compact ? ' compact' : ''}`}>
       <div className="ratex-tabs" role="tablist" aria-label="Rate type">
@@ -35,8 +39,22 @@ export function RateExplorer({ compact = false }: { compact?: boolean }) {
       </div>
       {tab === 'self-drive' ? (
         <div className="ratex-list">
-          {settings.selfDriveRates.map((r, i) => (
-            <Link key={r.zone} to={`/book?type=self&zone=${r.zone}`} className="ratex-row">
+          <div className="ratex-vehicles" role="tablist" aria-label="Vehicles">
+            {VEHICLES.map((v) => (
+              <button
+                key={v.id}
+                role="tab"
+                aria-selected={v.id === vehicle?.id}
+                className={v.id === vehicle?.id ? 'on' : ''}
+                onClick={() => setVehicleId(v.id)}
+              >
+                <b>{v.name}</b>
+                <small>from {formatPeso(v.startingRatePerDay)}/day</small>
+              </button>
+            ))}
+          </div>
+          {rates.map((r, i) => (
+            <Link key={r.zone} to={`/book?vehicle=${vehicle?.id}&type=self&zone=${r.zone}`} className="ratex-row">
               <span className="ratex-zone">{String(i + 1).padStart(2, '0')}</span>
               <span className="ratex-name">
                 <b>{r.shortLabel}</b>
@@ -174,14 +192,16 @@ export function RentalTypeExplainer({
   onChange: (v: RentalType) => void;
 }) {
   const { settings } = useAppStore();
+  const amounts = VEHICLES.flatMap((v) => v.rates.map((r) => r.amountPerDay));
+  const lo = Math.min(...amounts);
+  const hi = Math.max(...amounts);
   return (
     <div>
       <RentalTypeSelector value={value} onChange={onChange} />
       {value === 'self-drive' ? (
         <div className="note-box mt-16">
           Self-drive requires a <b>valid driver&apos;s license</b> and <b>proof of income</b>.
-          Rates run {formatPeso(settings.selfDriveRates[0]?.amountPerDay ?? 1500)}–
-          {formatPeso(settings.selfDriveRates[settings.selfDriveRates.length - 1]?.amountPerDay ?? 2500)} / day by zone.
+          Rates run {formatPeso(lo)}–{formatPeso(hi)} / day by vehicle and zone.
         </div>
       ) : (
         <div className="note-box warn mt-16">

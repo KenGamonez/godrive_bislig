@@ -3,46 +3,82 @@ import { VEHICLES } from './business';
 
 /**
  * Fleet presentation metadata — frontend only.
- * Real photographs (if ever added) live under public/cars/<photoDir>/.
- * When a folder is empty or a file fails to load, the UI falls back to
- * a refined VehicleArt placeholder. Photos are never mixed between vehicles.
+ * Real photographs live under public/cars/<photoDir>/, copied from the
+ * business-provided assets. Each vehicle's list contains ONLY its own
+ * photographs, ordered with the best exterior first. Photos are never
+ * mixed between vehicles.
  */
+export interface VehiclePhotoEntry {
+  src: string;
+  label: string;
+}
+
 export interface FleetMeta {
   slug: string;
   photoDir: string;
   tag: string;
   headline: string;
   highlights: string[];
+  photos: VehiclePhotoEntry[];
 }
 
 export const FLEET_META: Record<string, FleetMeta> = {
   'xpander-at': {
     slug: 'xpander',
-    photoDir: 'Mitsubishi-Xpander',
-    tag: 'Flagship MPV',
+    photoDir: 'mitsubishi-xpander',
+    tag: 'GLS Flagship MPV',
     headline: 'Room for seven. Composure for every road.',
-    highlights: ['7-seater MPV', 'Automatic', 'Family + long journeys'],
+    highlights: ['7-Seater MPV', 'Automatic', '7 passengers + 1 driver'],
+    photos: [
+      { src: '/cars/mitsubishi-xpander/exterior.jpg', label: 'Exterior' },
+      { src: '/cars/mitsubishi-xpander/front-seats.jpg', label: 'Front seats' },
+      { src: '/cars/mitsubishi-xpander/rear-cabin.jpg', label: 'Rear cabin' },
+      { src: '/cars/mitsubishi-xpander/console.jpg', label: 'Console' },
+    ],
   },
   'avanza-at': {
     slug: 'avanza',
-    photoDir: 'Toyota-Avanza',
+    photoDir: 'toyota-avanza',
     tag: 'Dependable MPV',
     headline: 'Practical comfort for group travel.',
-    highlights: ['7-seater MPV', 'Automatic', 'Everyday itineraries'],
+    highlights: ['7-Seater MPV', 'Automatic', '7 passengers + 1 driver'],
+    photos: [
+      { src: '/cars/toyota-avanza/exterior.jpg', label: 'Exterior' },
+      { src: '/cars/toyota-avanza/front.jpg', label: 'Front' },
+      { src: '/cars/toyota-avanza/cockpit.jpg', label: 'Cockpit' },
+      { src: '/cars/toyota-avanza/front-cabin.jpg', label: 'Front cabin' },
+      { src: '/cars/toyota-avanza/second-row.jpg', label: 'Second row' },
+      { src: '/cars/toyota-avanza/third-row.jpg', label: 'Third row' },
+      { src: '/cars/toyota-avanza/cargo.jpg', label: 'Cargo' },
+    ],
   },
   'dzire-mt': {
     slug: 'dzire-mt',
-    photoDir: 'Suzuki-Dzire-MT',
+    photoDir: 'suzuki-dzire-mt',
     tag: 'Efficient Sedan',
     headline: 'Straightforward economy for local trips.',
-    highlights: ['Sedan', 'Manual', 'Business + local travel'],
+    highlights: ['Sedan', 'Manual', '4 passengers + 1 driver'],
+    photos: [
+      { src: '/cars/suzuki-dzire-mt/exterior.jpg', label: 'Exterior' },
+      { src: '/cars/suzuki-dzire-mt/front-seats.jpg', label: 'Front seats' },
+      { src: '/cars/suzuki-dzire-mt/back-seats.jpg', label: 'Back seats' },
+      { src: '/cars/suzuki-dzire-mt/dashboard.jpg', label: 'Dashboard' },
+    ],
   },
   'dzire-at-2025': {
     slug: 'dzire-at',
-    photoDir: 'Suzuki-Dzire-AT',
-    tag: '2025 Sedan · AT',
+    photoDir: 'suzuki-dzire-at',
+    tag: '2024 Sedan · AT',
     headline: 'Composed, easy driving for city and province.',
-    highlights: ['Sedan', 'Automatic', '4 + 1 driver'],
+    highlights: ['Sedan', 'Automatic', '4 passengers + 1 driver'],
+    photos: [
+      { src: '/cars/suzuki-dzire-at/exterior.jpg', label: 'Exterior' },
+      { src: '/cars/suzuki-dzire-at/front.jpg', label: 'Front' },
+      { src: '/cars/suzuki-dzire-at/rear.jpg', label: 'Rear' },
+      { src: '/cars/suzuki-dzire-at/cockpit.jpg', label: 'Cockpit' },
+      { src: '/cars/suzuki-dzire-at/driver-seat.jpg', label: 'Driver seat' },
+      { src: '/cars/suzuki-dzire-at/rear-console.jpg', label: 'Rear console' },
+    ],
   },
 };
 
@@ -60,55 +96,7 @@ export function vehicleMeta(id: string): FleetMeta | undefined {
   return FLEET_META[id];
 }
 
-/** Candidate photo file names probed inside public/cars/<dir>/. */
-function candidatesFor(dir: string): string[] {
-  const stems = ['1', '2', '3', '4', '5', '6', 'front', 'side', 'rear', 'interior', 'main'];
-  const exts = ['jpg', 'jpeg', 'png', 'webp'];
-  const out: string[] = [];
-  for (const s of stems.slice(0, 6)) out.push(`/cars/${dir}/${s}.jpg`);
-  for (const s of stems) {
-    for (const e of exts) {
-      const p = `/cars/${dir}/${s}.${e}`;
-      if (!out.includes(p)) out.push(p);
-    }
-  }
-  return out.slice(0, 24);
-}
-
-function probe(src: string): Promise<string | null> {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => resolve(src);
-    img.onerror = () => resolve(null);
-    img.src = src;
-  });
-}
-
-const photoCache = new Map<string, string[]>();
-const probeCache = new Map<string, Promise<string[]>>();
-
-/** Loads only photographs that actually exist — never invents imagery. */
-export function fetchVehiclePhotos(photoDir: string): Promise<string[]> {
-  const cached = photoCache.get(photoDir);
-  if (cached) return Promise.resolve(cached);
-  const inflight = probeCache.get(photoDir);
-  if (inflight) return inflight;
-  const p = (async () => {
-    const found: string[] = [];
-    for (const c of candidatesFor(photoDir)) {
-      // Probe sequentially and stop once we have a solid set or ran out.
-      // Sequential keeps 404 noise low when folders are empty.
-      const hit = await probe(c);
-      if (hit) {
-        found.push(hit);
-        if (found.length >= 6) break;
-      }
-      // If the canonical 1.jpg 404s and nothing found after 6 probes, bail early.
-      if (found.length === 0 && c.endsWith('6.jpg')) break;
-    }
-    photoCache.set(photoDir, found);
-    return found;
-  })();
-  probeCache.set(photoDir, p);
-  return p;
+/** Minimum self-drive daily rate across the whole fleet. */
+export function fleetStartingRate(): number {
+  return Math.min(...VEHICLES.map((v) => v.startingRatePerDay));
 }

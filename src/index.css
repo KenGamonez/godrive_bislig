@@ -1268,3 +1268,43 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
   .dash-sub { font-size: 14px; }
   .showroom-media { min-height: 250px; }
 }
+
+/* ============================================================
+   Official brand logo + real vehicle photography
+   ============================================================ */
+
+.brand-logo { height: 42px; width: auto; display: block; }
+.brand-chip {
+  background: #fff; border-radius: 6px; padding: 6px 12px;
+  display: inline-flex; align-items: center;
+}
+.brand-chip .brand-logo { height: 32px; }
+
+/* Photographic centerpiece — intentional 16/10 cropping. */
+.photo-img.showroom-photo { aspect-ratio: 16 / 10; object-fit: cover; object-position: center; }
+.gallery-frame .photo-img { aspect-ratio: 16 / 10; object-fit: cover; object-position: center; width: 100%; }
+.gallery-caption {
+  position: absolute; right: 16px; bottom: 14px; z-index: 2;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--navy-200);
+}
+.modal-stage.photo { padding: 0; }
+.modal-stage.photo .photo-img { aspect-ratio: 16 / 9; object-fit: cover; object-position: center; width: 100%; }
+@media (max-width: 640px) {
+  .gallery-frame .photo-img { aspect-ratio: 4 / 3; }
+  .brand-logo { height: 36px; }
+}
+
+/* Rate explorer vehicle picker. */
+.ratex-vehicles { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
+.ratex-vehicles button {
+  border: 0; background: var(--bg-tint); padding: 14px 16px; cursor: pointer;
+  text-align: left; transition: background 0.2s ease;
+}
+.ratex-vehicles button:nth-child(2n) { border-left: 1px solid var(--line-soft); }
+.ratex-vehicles button:nth-child(n+3) { border-top: 1px solid var(--line-soft); }
+.ratex-vehicles b { font-family: var(--font-display); font-size: 13.5px; display: block; }
+.ratex-vehicles small { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.ratex-vehicles button.on { background: var(--navy-900); }
+.ratex-vehicles button.on b { color: #fff; }
+.ratex-vehicles button.on small { color: #a9bcdf; }

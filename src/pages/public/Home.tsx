@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { BUSINESS, VEHICLES } from '../../data/business';
+import { fleetStartingRate } from '../../data/fleet';
 import { VehicleCarousel } from '../../components/showroom';
 import { VehicleModal, useVehicleModal } from '../../components/fleet';
 import { useAppStore } from '../../store/AppStore';
@@ -29,7 +30,7 @@ export function HomePage() {
             <div>
               <h1 className="dash-title">Book a car.</h1>
               <p className="dash-sub">
-                {VEHICLES.length} vehicles · from {formatPeso(1500)} / day · {BUSINESS.pickup}
+                {VEHICLES.length} vehicles · from {formatPeso(fleetStartingRate())} / day · {BUSINESS.pickup}
               </p>
             </div>
             <div className="dash-head-side">
@@ -60,9 +61,9 @@ export function HomePage() {
           <Link to="/rates" className="hrow">
             <span className="hrow-label">Rates</span>
             <span className="hrow-main">
-              Self-drive from {formatPeso(1500)} / day
+              Self-drive from {formatPeso(fleetStartingRate())} / day
               <small>
-                With-driver {wd.map((r) => formatPeso(r.amount)).join(' · ')} · unit confirmed with GoDrive
+                Dzire {formatPeso(1300)}–{formatPeso(2000)} · Xpander &amp; Avanza {formatPeso(2300)}–{formatPeso(3500)} · With-driver {wd.map((r) => formatPeso(r.amount)).join(' · ')}
               </small>
             </span>
             <span className="hrow-go" aria-hidden="true">→</span>

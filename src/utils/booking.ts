@@ -1,5 +1,4 @@
-import type { BookingDraft, SelfDriveZone } from '../types';
-import { DEFAULT_SETTINGS } from '../data/business';
+import type { BookingDraft, SelfDriveZone, VehicleRate } from '../types';
 
 /** Inclusive rental-day count. Same-day pickup/return = 1 day. */
 export function rentalDaysBetween(pickup: string, ret: string): number {
@@ -10,16 +9,20 @@ export function rentalDaysBetween(pickup: string, ret: string): number {
   return Number.isFinite(diff) ? diff : 0;
 }
 
-export function rateForZone(zone: SelfDriveZone): number {
-  const found = DEFAULT_SETTINGS.selfDriveRates.find((r) => r.zone === zone);
+/** Per-vehicle zone rate. Each unit is priced by destination zone. */
+export function rateForVehicleRate(rates: VehicleRate[], zone: SelfDriveZone): number {
+  const found = rates.find((r) => r.zone === zone);
   return found ? found.amountPerDay : 0;
 }
 
 /** Self-drive estimate only. With-driver totals are never invented. */
-export function estimateSelfDrive(draft: BookingDraft): { days: number; amount: number | null } {
+export function estimateSelfDrive(
+  draft: BookingDraft,
+  rates: VehicleRate[],
+): { days: number; amount: number | null } {
   const days = rentalDaysBetween(draft.pickupDate, draft.returnDate);
   if (draft.rentalType !== 'self-drive' || days <= 0) return { days, amount: null };
-  return { days, amount: days * rateForZone(draft.selfDriveZone) };
+  return { days, amount: days * rateForVehicleRate(rates, draft.selfDriveZone) };
 }
 
 const REF_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';

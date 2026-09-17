@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BUSINESS } from '../../data/business';
 import { useAppStore } from '../../store/AppStore';
-import { VehicleArt } from '../../components/site';
+import { VehicleArt, BrandLogo } from '../../components/site';
 
 export function AdminLoginPage() {
   const { login } = useAppStore();
@@ -19,12 +19,8 @@ export function AdminLoginPage() {
   return (
     <div className="login-wrap">
       <div className="login-brand">
-        <Link to="/" className="brand" style={{ textDecoration: 'none' }}>
-          <span className="brand-mark" style={{ background: '#fff', color: '#0A2148' }}>G</span>
-          <span className="brand-text">
-            <strong style={{ color: '#fff' }}>GoDrive</strong>
-            <small style={{ color: '#8fa3c8' }}>OWNER CONSOLE</small>
-          </span>
+        <Link to="/" className="brand" style={{ textDecoration: 'none' }} aria-label="GoDrive — home">
+          <BrandLogo onDark />
         </Link>
         <div>
           <span className="eyebrow on-dark">Bislig · Owner access</span>

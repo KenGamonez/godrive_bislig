@@ -9,7 +9,7 @@ export function FaqPage() {
   const faqs = [
     {
       q: 'What vehicles are available?',
-      a: `GoDrive operates four vehicles: Mitsubishi Xpander AT (7-seater MPV, automatic), Toyota Avanza AT (7-seater MPV, automatic), Suzuki Dzire MT (sedan, manual), and Suzuki Dzire AT 2025 (sedan, automatic, 4 + 1 driver). Availability varies by date.`,
+      a: 'GoDrive operates four vehicles: Mitsubishi Xpander GLS 2025 (7-seater MPV, automatic, 7 passengers + 1 driver), Toyota Avanza 2026 (7-seater MPV, automatic, 7 passengers + 1 driver), Suzuki Dzire MT 2024 (sedan, manual, 4 passengers + 1 driver), and Suzuki Dzire AT 2024 (sedan, automatic, 4 passengers + 1 driver). Availability varies by date.',
     },
     {
       q: 'What rental options do you offer?',
@@ -17,7 +17,7 @@ export function FaqPage() {
     },
     {
       q: 'What are the self-drive rates?',
-      a: `Within Bislig City — ${formatPeso(1500)}/day. Within 2nd District, Surigao del Sur — ${formatPeso(1800)}/day. Within 1st District, Surigao del Sur / Caraga — ${formatPeso(2000)}/day. Outside Caraga — ${formatPeso(2500)}/day.`,
+      a: `Suzuki Dzire AT and MT — Within Bislig City ${formatPeso(1300)}/day · 2nd District, Surigao del Sur ${formatPeso(1500)}/day · 1st District, SDS / Caraga ${formatPeso(1800)}/day · Outside Caraga ${formatPeso(2000)}/day. Mitsubishi Xpander GLS and Toyota Avanza — Within Bislig City ${formatPeso(2300)}/day · 2nd District, Surigao del Sur ${formatPeso(2500)}/day · 1st District, SDS / Caraga / Davao City ${formatPeso(2800)}/day · Outside Caraga / Davao City ${formatPeso(3500)}/day.`,
     },
     {
       q: 'What are the with-driver rates?',

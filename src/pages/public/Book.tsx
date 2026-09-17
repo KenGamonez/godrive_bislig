@@ -40,7 +40,7 @@ function validZone(z: string | null): z is SelfDriveZone {
 
 /** CompactBookingFlow — the core reservation product. */
 export function BookPage() {
-  const { settings, vehicleStatus, addBooking, upsertCustomerFromBooking } = useAppStore();
+  const { settings, vehicleStatus, vehicleRates, addBooking, upsertCustomerFromBooking } = useAppStore();
   const [params] = useSearchParams();
 
   const [step, setStep] = useState(0);
@@ -69,12 +69,13 @@ export function BookPage() {
     setDraft((d) => ({ ...d, [key]: value }));
 
   const vehicle = VEHICLES.find((v) => v.id === draft.vehicleId);
-  const { days, amount } = useMemo(() => estimateSelfDrive(draft), [draft]);
+  const rates = vehicle ? vehicleRates(vehicle.id) : [];
+  const { days, amount } = useMemo(() => estimateSelfDrive(draft, rates), [draft, rates]);
   const today = todayISO();
 
   const zoneLabel =
     draft.rentalType === 'self-drive'
-      ? (settings.selfDriveRates.find((r) => r.zone === draft.selfDriveZone)?.label ?? '')
+      ? (rates.find((r) => r.zone === draft.selfDriveZone)?.label ?? '')
       : (settings.withDriverRates.find((r) => r.zone === draft.withDriverZone)?.label ?? '');
 
   const errors: Record<string, string> = useMemo(() => {
@@ -286,7 +287,7 @@ export function BookPage() {
                         id="zone" value={draft.selfDriveZone}
                         onChange={(e) => set('selfDriveZone', e.target.value as SelfDriveZone)}
                       >
-                        {settings.selfDriveRates.map((r) => (
+                        {rates.map((r) => (
                           <option key={r.zone} value={r.zone}>{r.label} — {formatPeso(r.amountPerDay)}/day</option>
                         ))}
                       </select>
@@ -377,7 +378,7 @@ export function BookPage() {
                 {draft.rentalType === 'self-drive' ? (
                   <>
                     <span style={{ color: '#a9bcdf', fontSize: 13 }}>Estimated total</span>
-                    <b>{amount !== null && days > 0 ? formatPeso(amount) : '—'}</b>
+                    <b>{vehicle && amount !== null && days > 0 ? formatPeso(amount) : '—'}</b>
                   </>
                 ) : (
                   <>
@@ -400,7 +401,7 @@ export function BookPage() {
             <b>{vehicle?.name ?? 'Select a vehicle'}</b>
             <small>
               {draft.rentalType === 'self-drive'
-                ? (amount !== null && days > 0 ? `${formatPeso(amount)} · ${days}d` : 'Estimate appears here')
+                ? (vehicle && amount !== null && days > 0 ? `${formatPeso(amount)} · ${days}d` : 'Estimate appears here')
                 : 'Driver rate · to be confirmed'}
             </small>
           </div>
@@ -431,7 +432,7 @@ function CarPick({
   return (
     <button className={`car-pick${selected ? ' selected' : ''}`} onClick={onPick} aria-pressed={selected}>
       <span className="car-pick-media">
-        <VehiclePhoto vehicle={v} src={photos[0]} tone="light" />
+        <VehiclePhoto vehicle={v} src={photos[0]?.src} tone="light" />
       </span>
       <span className="car-pick-info">
         <span className="car-pick-top"><b>{v.name}</b><StatusBadge status={status} /></span>
