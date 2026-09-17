@@ -16,7 +16,7 @@ type Tone = 'cool' | 'warm' | 'hot' | 'severe' | 'rain' | 'idle';
 function describe(code: number): { label: string; glyph: string } {
   if (code === 0) return { label: 'Clear', glyph: '☀' };
   if (code === 1) return { label: 'Mostly clear', glyph: '☀' };
-  if (code === 2) return { label: 'Partly cloudy', glyph: '⛅' };
+  if (code === 2) return { label: 'Partly cloudy', glyph: '⛅︎' };
   if (code === 3) return { label: 'Overcast', glyph: '☁' };
   if (code === 45 || code === 48) return { label: 'Fog', glyph: '☁' };
   if (code >= 51 && code <= 67) return { label: 'Rain', glyph: '☂' };
