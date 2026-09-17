@@ -284,7 +284,7 @@ export function HomePage() {
       </section>
 
       {/* ============ PROCESS ============ */}
-      <section className="section section-soft">
+      <section className="section" style={{ paddingTop: 0 }}>
         <div className="container">
           <Reveal>
             <SectionHead
@@ -309,7 +309,7 @@ export function HomePage() {
       </section>
 
       {/* ============ REQUIREMENTS ============ */}
-      <section className="section">
+      <section className="section band-navy">
         <div className="container">
           <Reveal>
             <SectionHead
@@ -317,6 +317,7 @@ export function HomePage() {
               index="05 / Standard"
               title="Two documents. One standard of care."
               lede="These requirements help establish your ability to take responsibility for rental liabilities in case of an untoward incident."
+              dark
             />
           </Reveal>
           <Reveal delay={0.06}>
@@ -332,12 +333,15 @@ export function HomePage() {
                 <p>Demonstrates capacity to answer for rental liabilities — protecting both you and the vehicle entrusted to you.</p>
               </div>
             </div>
+            <p className="disclaimer mt-32">
+              <strong>With-driver rentals</strong> do not require these documents — your GoDrive driver carries the responsibility for the vehicle.
+            </p>
           </Reveal>
         </div>
       </section>
 
       {/* ============ FAQ PREVIEW ============ */}
-      <section className="section section-soft">
+      <section className="section">
         <div className="container" style={{ maxWidth: 900 }}>
           <Reveal>
             <SectionHead eyebrow="Questions" index="06 / FAQ" title="Good to know." />

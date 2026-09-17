@@ -67,6 +67,23 @@ input, select, textarea { font-family: inherit; font-size: 16px; }
 @media (max-width: 720px) { .section { padding: 64px 0; } }
 .section-soft { background: var(--bg-soft); }
 .section-navy { background: var(--navy-900); color: #fff; }
+/* Deep editorial band — breaks white/gray alternation rhythm. */
+.band-navy { background: var(--navy-950); color: #fff; position: relative; overflow: hidden; }
+.band-navy::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 100% 84px;
+}
+.band-navy .lede { color: #a9bcdf; }
+.band-navy .req-cell { border-color: rgba(255,255,255,0.16); }
+.band-navy .req-cell .n { color: var(--navy-200); }
+.band-navy .req-cell h3 { color: #fff; }
+.band-navy .req-cell p { color: #a9bcdf; }
+/* Plain editorial footnote — replaces boxed notes for informational copy. */
+.disclaimer { border-top: 1px solid var(--line); padding-top: 18px; color: var(--muted); font-size: 14px; line-height: 1.7; max-width: 760px; }
+.disclaimer strong { color: var(--ink); }
+.band-navy .disclaimer { border-color: rgba(255,255,255,0.16); color: #8fa3c8; }
+.band-navy .disclaimer strong { color: #fff; }
 
 /* ---------- Eyebrow + headings ---------- */
 .eyebrow {
@@ -194,6 +211,8 @@ input, select, textarea { font-family: inherit; font-size: 16px; }
 .mobile-menu a.mm-link:nth-child(7) { animation-delay: 0.24s; }
 @keyframes mmLink { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
 .mm-link small { font-size: 12px; color: var(--navy-200); letter-spacing: 0.2em; }
+.mobile-menu a.mm-link.on { text-decoration: underline; text-underline-offset: 12px; text-decoration-thickness: 2px; }
+.mobile-menu a.mm-link.on small { color: #fff; }
 .mm-foot { margin-top: auto; padding-top: 28px; display: grid; gap: 14px; color: #c3cfe3; font-size: 14px; }
 .mobile-book { position: sticky; bottom: 0; z-index: 40; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: rgba(255,255,255,0.96); backdrop-filter: blur(10px); border-top: 1px solid var(--line); display: none; }
 @media (min-width: 1024px) {
@@ -241,7 +260,12 @@ input, select, textarea { font-family: inherit; font-size: 16px; }
 }
 @supports not (-webkit-text-stroke: 1px black) { .hero-ghost { color: rgba(255,255,255,0.06); } }
 .hero-ticker { border-top: 1px solid rgba(255,255,255,0.16); background: rgba(6,15,36,0.55); position: relative; z-index: 1; }
-.hero-ticker-inner { display: grid; grid-template-columns: repeat(2, 1fr); }
+.hero-ticker-inner { display: grid; grid-template-columns: repeat(2, 1fr); padding-bottom: 88px; }
+@media (max-width: 719px) {
+  .hero-inner { padding-top: 56px; }
+  .hero-ticker b { font-size: 17px; }
+  .hero-ticker div { padding-top: 14px; }
+}
 .hero-ticker div { padding: 18px 20px 18px 0; }
 .hero-ticker div:nth-child(2n) { padding-left: 20px; border-left: 1px solid rgba(255,255,255,0.12); }
 .hero-ticker b { font-family: var(--font-display); font-size: 19px; display: block; }
@@ -267,6 +291,11 @@ input, select, textarea { font-family: inherit; font-size: 16px; }
   box-shadow: var(--shadow-md);
   margin-top: -58px; position: relative;
   padding: 30px 30px 28px;
+}
+@media (max-width: 719px) {
+  .bookstart-panel { margin-top: -64px; padding: 24px 20px 22px; }
+  .bookstart-grid { gap: 14px; }
+  .bookstart-grid .btn { width: 100%; }
 }
 .bookstart-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
 .bookstart-head h2 { font-size: clamp(21px, 2.6vw, 28px); text-transform: uppercase; }
@@ -553,7 +582,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
 @media (max-width: 720px) { .page-hero-inner { padding: 52px 0 40px; } .page-hero-inner .ghost-num { opacity: 0.55; } }
 
 /* ---------- Contact (concise business card) ---------- */
-.biz-card { border: 1px solid var(--line); border-top: 3px solid var(--navy-900); background: #fff; }
+.biz-card { border: 1px solid var(--line); border-top: 3px solid var(--navy-900); border-radius: var(--radius); overflow: hidden; background: #fff; }
 .biz-head { padding: 40px 36px 32px; border-bottom: 1px solid var(--line-soft); }
 .biz-head h2 { font-size: clamp(30px, 4vw, 46px); text-transform: uppercase; }
 .biz-rows { display: grid; }
@@ -740,6 +769,38 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
 .progress { display: flex; gap: 6px; margin: 18px 0 8px; }
 .progress i { height: 4px; flex: 1; background: var(--line); border-radius: 2px; }
 .progress i.done { background: var(--navy-900); }
+
+/* ---------- Mobile composition (375 / 390 / 768) ---------- */
+@media (max-width: 719px) {
+  .lineup-media { padding: 28px 18px; }
+  .lineup-body { padding: 30px 22px; gap: 12px; }
+  .lineup-foot { flex-direction: column; align-items: stretch; }
+  .lineup-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .lineup-actions .btn { min-height: 50px; }
+  .duet-col { padding: 38px 24px; }
+  .duet-col .btn { width: 100%; }
+  .ledger-row { padding: 24px 2px; }
+  .pstep { padding: 10px 4px; }
+  .pstep .n { font-size: 11px; }
+  .final-grid { padding: 68px 0; }
+  .wd-panel { padding: 36px 24px; }
+  .wd-row { flex-direction: column; gap: 4px; }
+  .wd-row b { font-size: 20px; }
+  .hero-ctas .btn { flex: 1 1 auto; }
+  .split-head { margin-bottom: 36px; }
+  .book-head .kick { font-size: 10.5px; letter-spacing: 0.14em; }
+}
+@media (max-width: 479px) {
+  .hero-ctas { flex-direction: column; }
+  .hero-ctas .btn { width: 100%; }
+}
+@media (min-width: 720px) and (max-width: 1023px) {
+  .lineup-row { grid-template-columns: 1fr 1fr; }
+  .lineup-body { padding: 34px 28px; }
+  .duet { grid-template-columns: 1fr 1fr; }
+  .duet-col { padding: 40px 30px; }
+  .duet-col + .duet-col { border-top: 0; border-left: 1px solid var(--line); }
+}
 
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {

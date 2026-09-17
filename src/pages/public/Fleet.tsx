@@ -38,9 +38,9 @@ export function FleetPage() {
             </div>
           </Reveal>
           <Reveal delay={0.08}>
-            <div className="note-box mt-32">
-              Availability changes daily. If your preferred vehicle is reserved, submit a request anyway — GoDrive will advise on the nearest available unit or date.
-            </div>
+            <p className="disclaimer mt-32">
+              <strong>Availability changes daily.</strong> If your preferred vehicle is reserved, submit a request anyway — GoDrive will advise on the nearest available unit or date.
+            </p>
             <div className="mt-24" style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <Link to="/book" className="btn btn-primary">
                 Book a Vehicle <span className="arr" aria-hidden="true">→</span>

@@ -47,9 +47,9 @@ export function RatesPage() {
                 <p className="mt-16" style={{ color: '#a9bcdf' }}>
                   A professional GoDrive driver handles the trip. {settings.driverExpenseNote}
                 </p>
-                <div className="note-box warn mt-24" style={{ background: 'rgba(255,255,255,0.06)', borderColor: 'rgba(255,255,255,0.2)', color: '#fff' }}>
+                <p className="mt-24" style={{ borderLeft: '2px solid #E8B93E', paddingLeft: 16, color: '#fff', fontSize: 14, lineHeight: 1.65 }}>
                   {settings.withDriverRateUnitNote}
-                </div>
+                </p>
               </div>
               <div>
                 {settings.withDriverRates.map((r) => (

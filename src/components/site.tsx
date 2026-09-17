@@ -321,9 +321,9 @@ export function SiteHeader() {
       {open && (
         <nav className="mobile-menu" aria-label="Mobile">
           {NAV.map((n) => (
-            <Link key={n.to} to={n.to} className="mm-link">
+            <NavLink key={n.to} to={n.to} className={({ isActive }) => `mm-link${isActive ? ' on' : ''}`}>
               <small>{n.n}</small> {n.label}
-            </Link>
+            </NavLink>
           ))}
           <div className="mm-foot">
             <Link to="/book" className="btn btn-light btn-block">
