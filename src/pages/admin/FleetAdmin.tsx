@@ -173,7 +173,7 @@ export function FleetAdminPage() {
                 </div>
                 <div className="action-row">
                   <button className="btn btn-primary" onClick={() => saveEdits(editing, { ...current })}>Save (local)</button>
-                  <button className="btn btn-outline" onClick={() => setEditing(null)}>Cancel</button>
+                  <button className="btn btn-outline-danger" onClick={() => setEditing(null)}>Cancel</button>
                 </div>
               </div>
             </div>

@@ -52,7 +52,7 @@ export function AdminLoginPage() {
             <input id="a-pass" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
           </div>
           <button className="btn btn-primary btn-block" type="submit">Sign In (Demo)</button>
-          <Link to="/" className="btn btn-ghost btn-block">← Back to website</Link>
+          <Link to="/" className="btn btn-outline-danger btn-block">← Back to website</Link>
         </form>
       </div>
     </div>

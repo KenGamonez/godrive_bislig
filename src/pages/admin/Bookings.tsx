@@ -99,13 +99,13 @@ export function BookingsPage() {
                 {selected.status === 'Pending' && (
                   <>
                     <button className="btn btn-primary btn-sm" onClick={() => action(selected.id, 'Confirmed')}>Confirm</button>
-                    <button className="btn btn-outline btn-sm" onClick={() => action(selected.id, 'Cancelled')}>Cancel</button>
+                    <button className="btn btn-outline-danger btn-sm" onClick={() => action(selected.id, 'Cancelled')}>Cancel</button>
                   </>
                 )}
                 {selected.status === 'Confirmed' && (
                   <>
                     <button className="btn btn-primary btn-sm" onClick={() => action(selected.id, 'Ongoing')}>Mark Ongoing</button>
-                    <button className="btn btn-outline btn-sm" onClick={() => action(selected.id, 'Cancelled')}>Cancel</button>
+                    <button className="btn btn-outline-danger btn-sm" onClick={() => action(selected.id, 'Cancelled')}>Cancel</button>
                   </>
                 )}
                 {selected.status === 'Ongoing' && (

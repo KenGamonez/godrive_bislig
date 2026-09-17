@@ -357,7 +357,7 @@ export function BookPage() {
 
             <div className="flow-nav">
               {step > 0 ? (
-                <button className="btn btn-outline" onClick={goBack}>← Back</button>
+                <button className="btn btn-outline-danger" onClick={goBack}>← Back</button>
               ) : <span />}
               {step < STEPS.length - 1 ? (
                 <button className="btn btn-primary" onClick={goNext}>Continue <span className="arr" aria-hidden="true">→</span></button>

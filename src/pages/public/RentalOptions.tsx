@@ -58,7 +58,7 @@ export function RentalOptionsPage() {
                   <li><span>Outside Caraga / Davao City</span><b>{formatPeso(settings.withDriverRates[1]?.amount ?? 1500)}</b></li>
                   <li><span>Meals &amp; lodging</span><b>{settings.driverExpenseNote}</b></li>
                 </ul>
-                <p className="mt-24" style={{ borderLeft: '2px solid #8a5f00', paddingLeft: 16, fontSize: 14, lineHeight: 1.65, position: 'relative' }}>{settings.withDriverRateUnitNote}</p>
+                <p className="mt-24" style={{ borderLeft: '2px solid var(--brand-200)', paddingLeft: 16, fontSize: 14, lineHeight: 1.65, position: 'relative' }}>{settings.withDriverRateUnitNote}</p>
                 <Link to="/book" className="btn btn-outline">
                   Book With Driver <span className="arr" aria-hidden="true">→</span>
                 </Link>
