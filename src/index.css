@@ -1188,3 +1188,83 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
   .gallery-frame, .flow-pane, .mybooking-card, .nav-more-drop { animation: none; }
   *, *::before, *::after { transition-duration: 0.01ms !important; }
 }
+
+/* ============================================================
+   Homepage — compact reservation app composition
+   ============================================================ */
+
+/* Headline row: stacked on mobile, intentional split on desktop. */
+.dash-head { margin-top: 22px; display: grid; gap: 10px; }
+.dash-head-side { display: flex; align-items: baseline; gap: 10px; }
+.dash-head-side a {
+  font-family: var(--font-display); font-weight: 800; font-size: 17px;
+  color: #fff; text-decoration: none; font-variant-numeric: tabular-nums;
+}
+.dash-head-side a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.dash-head-side span { font-size: 12px; color: #8fa3c8; letter-spacing: 0.06em; text-transform: uppercase; }
+@media (min-width: 960px) {
+  .dash-head { grid-template-columns: 1fr auto; align-items: end; gap: 32px; }
+  .dash-head-side { flex-direction: column; align-items: flex-end; gap: 2px; padding-bottom: 10px; }
+  .dash-head-side a { font-size: 22px; }
+}
+
+/* Compact rental-type strip: one tap to the right booking flow. */
+.hrental {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border: 1px solid rgba(255,255,255,0.16); border-top: 0;
+  background: rgba(6,15,36,0.6);
+}
+.hrental a {
+  display: block; padding: 16px 20px; text-decoration: none;
+  transition: background 0.2s ease;
+}
+.hrental a + a { border-left: 1px solid rgba(255,255,255,0.12); }
+.hrental a:hover { background: rgba(255,255,255,0.07); }
+.hrental b {
+  font-family: var(--font-display); font-size: 14px; font-weight: 800;
+  letter-spacing: 0.1em; text-transform: uppercase; color: #fff; display: block;
+}
+.hrental small { font-size: 13px; color: #a9bcdf; display: block; margin-top: 2px; }
+@media (max-width: 640px) {
+  .hrental a { padding: 18px 16px; min-height: 76px; }
+}
+@media (min-width: 960px) {
+  .hrental a { display: flex; align-items: baseline; gap: 12px; padding: 18px 24px; }
+  .hrental small { margin-top: 0; }
+}
+
+/* Hairline index rows: rates / booking / requirements at a glance. */
+.hrows { background: #fff; padding: 8px 0 72px; }
+.hrow {
+  display: grid; grid-template-columns: 130px 1fr 28px; gap: 16px; align-items: center;
+  padding: 22px 4px; border-bottom: 1px solid var(--line); text-decoration: none;
+  transition: background 0.2s ease, padding 0.2s var(--ease);
+}
+.hrow:first-child { border-top: 2px solid var(--navy-900); }
+.hrow:hover { background: var(--bg-tint); padding-left: 12px; }
+.hrow-label {
+  font-family: var(--font-display); font-size: 11.5px; font-weight: 800;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--navy-700);
+}
+.hrow-main { font-family: var(--font-display); font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.hrow-main small { display: block; font-family: var(--font-body); font-weight: 400; font-size: 13.5px; color: var(--muted); margin-top: 3px; }
+.hrow-go { font-size: 19px; color: var(--navy-800); text-align: right; }
+@media (max-width: 640px) {
+  .hrows { padding-bottom: 56px; }
+  .hrow { grid-template-columns: 1fr 24px; gap: 8px; }
+  .hrow-label { grid-column: 1 / -1; }
+  .hrow-go { grid-row: 2; grid-column: 2; }
+}
+
+/* Carousel dominance: larger stage on desktop, compact on mobile. */
+@media (min-width: 960px) {
+  .showroom { margin-top: 30px; }
+  .showroom-media { min-height: 470px; }
+  .showroom-name { font-size: clamp(40px, 4.4vw, 60px); }
+  .showroom-body { padding: 52px 48px; }
+}
+@media (max-width: 640px) {
+  .dash-title { font-size: clamp(48px, 14vw, 68px); }
+  .dash-sub { font-size: 14px; }
+  .showroom-media { min-height: 250px; }
+}
