@@ -1342,7 +1342,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
 .ratex-vehicles button.on small { color: #a9bcdf; }
 
 /* ============================================================
-   Floating dock � weather + customer chat (public site only).
+   Floating chat control (public site only).
    Isolated block: remove .dock and nothing else is affected.
    ============================================================ */
 
@@ -1352,45 +1352,19 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
   max-width: calc(100vw - 24px);
 }
 
-/* ---- Weather ---- */
-.wx {
-  display: flex; align-items: center; gap: 10px;
-  background: #fff; border: 1px solid var(--line); border-left: 3px solid var(--brand-700);
-  border-radius: var(--radius); box-shadow: var(--shadow-md);
-  padding: 9px 14px; max-width: 100%;
-}
-.wx-glyph { font-size: 20px; line-height: 1; color: var(--brand-800); }
-.wx-main { display: flex; flex-direction: column; line-height: 1.25; }
-.wx-main b { font-family: var(--font-display); font-size: 19px; font-variant-numeric: tabular-nums; }
-.wx-main small { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
-.wx-city {
-  font-family: var(--font-display); font-size: 10px; font-weight: 800;
-  letter-spacing: 0.16em; text-transform: uppercase; color: var(--faint);
-  border-left: 1px solid var(--line-soft); padding-left: 10px; white-space: nowrap;
-}
-.wx-warm { border-left-color: #c98a2e; }
-.wx-warm .wx-glyph { color: #a86a14; }
-.wx-hot { border-left-color: var(--red); }
-.wx-hot .wx-glyph { color: var(--red); }
-.wx-severe { border-left-color: var(--red); background: var(--red-bg); }
-.wx-severe .wx-glyph { color: var(--red); }
-.wx-rain { border-left-color: #5b7a99; }
-.wx-rain .wx-glyph { color: #40607c; }
-.wx-idle .wx-sub { font-size: 12px; color: var(--muted); }
-
 /* ---- Chat ---- */
 .chatdock { position: relative; display: flex; justify-content: flex-end; }
+/* Compact geometric tile — icon only, one clipped corner. */
 .chatfab {
-  position: relative; display: inline-flex; align-items: center; gap: 8px;
-  background: var(--brand-900); color: #fff; border: 1px solid var(--brand-900);
-  border-radius: 999px; padding: 13px 20px; cursor: pointer;
-  font-family: var(--font-display); font-size: 13px; font-weight: 800;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  box-shadow: var(--shadow-md); min-height: 52px;
-  transition: background 0.2s var(--ease), transform 0.2s var(--ease);
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; padding: 0; cursor: pointer;
+  background: var(--navy-950); color: #fff; border: 1px solid var(--navy-950);
+  border-radius: 14px 14px 14px 4px;
+  box-shadow: var(--shadow-md);
+  transition: background 0.2s var(--ease), border-color 0.2s ease, transform 0.2s var(--ease);
 }
-.chatfab:hover { background: var(--brand-950); transform: translateY(-1px); }
-.chatfab span { font-size: 16px; }
+.chatfab:hover { background: var(--navy-900); border-color: var(--navy-900); transform: translateY(-1px); }
+.chatfab svg { width: 20px; height: 20px; display: block; }
 .chatping {
   position: absolute; top: -2px; right: -2px; width: 14px; height: 14px;
   border-radius: 50%; background: var(--red); border: 2px solid #fff;
@@ -1447,10 +1421,8 @@ li:first-child .omsg-row { border-top: 0; }
 /* ---- Dock on small screens: clear the sticky booking bar ---- */
 @media (max-width: 1023px) {
   .dock { right: 12px; bottom: calc(92px + env(safe-area-inset-bottom)); gap: 8px; }
-  .wx { padding: 7px 11px; }
-  .wx-main b { font-size: 17px; }
-  .wx-city { display: none; }
-  .chatfab { min-height: 48px; padding: 11px 16px; }
+  .chatfab { width: 40px; height: 40px; }
+  .chatfab svg { width: 18px; height: 18px; }
   .chatpanel { bottom: 58px; max-height: calc(100dvh - 260px); }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -152,10 +152,24 @@ export function ChatWidget() {
         className="chatfab"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        aria-label={open ? 'Close chat' : 'Chat with GoDrive'}
+        aria-label={open ? 'Close chat' : 'Open chat'}
       >
-        <span aria-hidden="true">✉</span>
-        <b>{open ? 'Close' : 'Chat'}</b>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path
+            d="M4 5h16v10H9.5L4 19V5z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.7}
+            strokeLinejoin="round"
+          />
+          <path
+            d="M8 9h8M8 12h5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.7}
+            strokeLinecap="round"
+          />
+        </svg>
         {!open && unread > 0 && <i className="chatping" aria-label={`${unread} new replies`} />}
       </button>
     </div>
