@@ -240,7 +240,7 @@ input, select, textarea { font-family: inherit; font-size: 16px; }
 .mobile-menu a.mm-link.on { text-decoration: underline; text-underline-offset: 12px; text-decoration-thickness: 2px; }
 .mobile-menu a.mm-link.on small { color: #fff; }
 .mm-foot { margin-top: auto; padding-top: 28px; display: grid; gap: 14px; color: #c3cfe3; font-size: 14px; }
-.mobile-book { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: rgba(255,255,255,0.97); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--line); display: none; }
+.mobile-book { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: rgba(255,255,255,0.97); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--line); box-shadow: 0 -10px 28px rgba(6,15,36,0.10); display: none; }
 .mobile-book .btn { min-height: 50px; }
 /* Content clearance above the fixed mobile booking bar (mobile/tablet only). */
 @media (max-width: 1023px) { .site-footer { padding-bottom: calc(88px + env(safe-area-inset-bottom)); } }
@@ -471,6 +471,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
 /* ---------- Footer ---------- */
 .site-footer { background: var(--navy-950); color: #c3cfe3; overflow: hidden; }
 .footer-grid { display: grid; gap: 40px; padding: 72px 0 48px; }
+@media (max-width: 640px) { .footer-grid { gap: 48px; } }
 @media (min-width: 900px) { .footer-grid { grid-template-columns: 1.4fr 0.8fr 0.8fr 1fr; gap: 48px; } }
 .site-footer h4 { color: #fff; font-size: 11.5px; letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 18px; }
 .site-footer a { color: #c3cfe3; text-decoration: none; transition: color 0.2s ease; }
@@ -733,7 +734,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
   background-image: linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
   background-size: 100% 88px;
 }
-.dash-inner { position: relative; padding: 48px 0 0; }
+.dash-inner { position: relative; padding: 52px 0 0; }
 .dash-title {
   font-size: clamp(44px, 7vw, 96px); font-weight: 900; text-transform: uppercase;
   letter-spacing: -0.025em; line-height: 0.95; margin-top: 0; color: #fff;
@@ -747,7 +748,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
 /* Red brand keyline — echoes the logo's red accent. Decorative only. */
 .dash-tag::before { content: ''; width: 28px; height: 2px; background: var(--red); flex-shrink: 0; }
 /* ---------- Showroom carousel ---------- */
-.showroom { position: relative; margin-top: 26px; }
+.showroom { position: relative; margin-top: 30px; }
 .showroom-stage { border: 1px solid rgba(255,255,255,0.16); border-bottom: 0; background: var(--navy-900); transition: opacity 0.14s ease, transform 0.14s ease; }
 .showroom-stage.exit-left { opacity: 0; transform: translateX(-24px); }
 .showroom-stage.exit-right { opacity: 0; transform: translateX(24px); }
@@ -1073,7 +1074,6 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
   .dash-title { font-size: clamp(38px, 12.5vw, 54px); }
   .showroom-media { min-height: 240px; padding: 30px 16px 6px; }
   .showroom-body { padding: 22px 18px 24px; }
-  .showroom-name { font-size: 29px; }
   .vpage { padding-top: 20px; }
   .flow-wrap { padding: 32px 0 80px; }
   .car-foot { align-items: stretch; flex-direction: column; }
@@ -1095,7 +1095,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
    ============================================================ */
 
 /* Headline row: single confident statement with generous whitespace. */
-.dash-head { margin-top: 30px; display: grid; gap: 10px; }
+.dash-head { margin-top: 32px; display: grid; gap: 10px; }
 @media (min-width: 960px) {
   .dash-inner { padding-top: 56px; }
   .dash-head { margin-top: 34px; }
@@ -1119,7 +1119,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
 }
 .hrental small { font-size: 13px; color: #a9bcdf; display: block; margin-top: 2px; }
 @media (max-width: 640px) {
-  .hrental a { padding: 18px 16px; min-height: 76px; }
+  .hrental a { padding: 20px 18px; min-height: 76px; }
 }
 @media (min-width: 960px) {
   .hrental a { display: flex; align-items: baseline; gap: 12px; padding: 18px 24px; }
@@ -1130,7 +1130,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
 .hrows { background: #fff; padding: 8px 0 72px; }
 .hrow {
   display: grid; grid-template-columns: 130px 1fr 28px; gap: 16px; align-items: center;
-  padding: 22px 4px; border-bottom: 1px solid var(--line); text-decoration: none;
+  padding: 22px 0; border-bottom: 1px solid var(--line); text-decoration: none;
   transition: background 0.2s ease, padding 0.2s var(--ease);
 }
 .hrow:first-child { border-top: 2px solid var(--brand-900); }
@@ -1144,8 +1144,9 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
 .hrow-go { font-size: 19px; color: var(--brand-800); text-align: right; }
 @media (max-width: 640px) {
   .hrows { padding-bottom: 56px; }
-  .hrow { grid-template-columns: 1fr 24px; gap: 8px; }
+  .hrow { grid-template-columns: 1fr 24px; gap: 8px; padding: 24px 0; }
   .hrow-label { grid-column: 1 / -1; }
+  .hrow-main { font-size: 18px; }
   .hrow-go { grid-row: 2; grid-column: 2; }
 }
 
@@ -1160,18 +1161,22 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
   .dash-title { font-size: clamp(40px, 11vw, 58px); }
   .dash-sub { font-size: 14px; }
   .showroom-media { min-height: 250px; }
+  .showroom-body { gap: 12px; }
+  .showroom-name { font-size: 27px; }
+  .showroom-rate b { font-size: 34px; }
+  .showroom-actions { margin-top: 16px; }
 }
 
 /* ============================================================
    Official brand logo + real vehicle photography
    ============================================================ */
 
-.brand-logo { height: 42px; width: auto; display: block; }
+.brand-logo { height: 44px; width: auto; display: block; }
 .brand-chip {
   background: #fff; border-radius: 6px; padding: 6px 12px;
   display: inline-flex; align-items: center;
 }
-.brand-chip .brand-logo { height: 32px; }
+.brand-chip .brand-logo { height: 34px; }
 
 /* Photographic centerpiece � intentional 16/10 cropping. */
 .photo-img.showroom-photo { aspect-ratio: 16 / 10; object-fit: cover; object-position: center; }
@@ -1185,7 +1190,7 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
 .modal-stage.photo .photo-img { aspect-ratio: 16 / 9; object-fit: cover; object-position: center; width: 100%; }
 @media (max-width: 640px) {
   .gallery-frame .photo-img { aspect-ratio: 4 / 3; }
-  .brand-logo { height: 36px; }
+  .brand-logo { height: 38px; }
 }
 
 /* Rate explorer vehicle picker. */
