@@ -21,7 +21,7 @@ export function HomePage() {
         <div className="wrap dash-inner">
           <div className="dash-head rise" style={{ ['--d' as never]: '0.06s' }}>
             <div>
-              <h1 className="dash-title">Book a car.</h1>
+              <h1 className="dash-title">Book<span className="dash-l2"> a car.</span></h1>
               <p className="dash-tag">Car Rental · Bislig</p>
             </div>
           </div>
