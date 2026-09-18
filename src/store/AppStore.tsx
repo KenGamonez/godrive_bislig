@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import type {
   AdminSession,
   AvailabilityOverride,
@@ -312,6 +313,37 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     void refreshAll();
   }, [refreshAll, authEmail]);
+
+  /* ---------- realtime sync: event -> existing refetch -> existing state.
+     Public channel (vehicles, settings) is RLS-filtered per socket, so
+     anonymous visitors only ever receive publicly readable rows.
+     Admin tables refresh only while signed in. No polling. */
+  useEffect(() => {
+    const sb = getSupabase();
+    if (!sb) return;
+    const refresh = () => {
+      void refreshAll();
+    };
+    const pub = sb
+      .channel('godrive-public')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'vehicles' }, refresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'business_settings' }, refresh)
+      .subscribe();
+    let admin: RealtimeChannel | null = null;
+    if (authEmail) {
+      admin = sb
+        .channel('godrive-admin')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, refresh)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'booking_payments' }, refresh)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'contact_messages' }, refresh)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'availability_overrides' }, refresh)
+        .subscribe();
+    }
+    return () => {
+      void sb.removeChannel(pub);
+      if (admin) void sb.removeChannel(admin);
+    };
+  }, [authEmail, refreshAll]);
 
   /* ---------- debounced ambient writes (owner tools) ---------- */
   useDebouncedPush(
