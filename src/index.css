@@ -185,7 +185,7 @@ input, select, textarea { font-family: inherit; font-size: 16px; }
 .nav-desktop a:hover { color: var(--brand-800); }
 .nav-desktop a:hover::after { transform: scaleX(1); }
 .nav-desktop a.active { color: var(--brand-800); }
-.nav-desktop a.active::after { transform: scaleX(1); }
+.nav-desktop a.active::after { transform: scaleX(1); background: var(--red); }
 .header-cta {
   margin-left: 14px;
   padding-left: 26px; padding-right: 26px;
@@ -865,8 +865,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
   letter-spacing: 0.24em; text-transform: uppercase; color: var(--navy-200);
   display: inline-flex; align-items: center; gap: 10px;
 }
-/* Single red brand tick — echoes the logo's red accent. Decorative only. */
-.dash-tag::before { content: ''; width: 8px; height: 8px; background: var(--red); flex-shrink: 0; }
+/* Red brand keyline — echoes the logo's red accent. Decorative only. */
+.dash-tag::before { content: ''; width: 28px; height: 2px; background: var(--red); flex-shrink: 0; }
 .dash-sub { color: #a9bcdf; margin-top: 12px; font-size: 15.5px; }
 .dash-strip { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid rgba(255,255,255,0.14); margin-top: 28px; }
 .dash-strip div { padding: 16px 4px 20px; }
@@ -1006,7 +1006,9 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
 .car-num { position: absolute; top: 2px; left: 12px; font-family: var(--font-display); font-weight: 900; font-size: 64px; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.18); line-height: 1; }
 .car-body { padding: 22px; display: grid; gap: 8px; }
 .car-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.car-tag { font-size: 11px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brand-800); }
+.car-tag { font-size: 11px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brand-800); display: inline-flex; align-items: center; gap: 8px; }
+/* Red micro-tick — same brand motif as the hero keyline. Decorative only. */
+.car-tag::before { content: ''; width: 7px; height: 7px; background: var(--red); flex-shrink: 0; }
 .car-name { font-size: 23px; text-transform: uppercase; }
 .car-spec { color: var(--muted); font-size: 13.5px; }
 .car-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-top: 1px solid var(--line-soft); padding-top: 16px; margin-top: 8px; flex-wrap: wrap; }
