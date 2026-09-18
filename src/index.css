@@ -1382,3 +1382,136 @@ li:first-child .omsg-row { border-top: 0; }
   .chatpanel { animation: none; }
   .chatfab { transition: none; }
 }
+
+/* ============================================================
+   Commercial homepage (public storefront layer).
+   Navy hero + white booking panel + catalog + features.
+   All imagery from public/cars; all copy from business data.
+   ============================================================ */
+
+/* ---- Slim utility strip (desktop only) ---- */
+.co-topstrip { display: none; background: var(--navy-950); color: #a9bcdf; font-size: 12px; }
+@media (min-width: 1024px) {
+  .co-topstrip { display: block; }
+  .co-topstrip-inner {
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    padding-top: 8px; padding-bottom: 8px;
+  }
+  .co-topstrip a { color: #fff; text-decoration: none; font-weight: 700; }
+  .co-topstrip a:hover { text-decoration: underline; }
+}
+
+/* ---- Hero ---- */
+.co-hero { background: var(--navy-900); color: #fff; overflow: hidden; position: relative; }
+.co-hero::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px);
+  background-size: 100% 96px;
+}
+.co-hero-grid {
+  position: relative; display: grid; gap: 40px; align-items: center;
+  padding-top: 64px;
+}
+@media (min-width: 960px) {
+  .co-hero-grid { grid-template-columns: 1fr 1fr; gap: 56px; padding-top: 88px; }
+}
+.co-hero-title {
+  font-size: clamp(44px, 6.4vw, 84px); font-weight: 900; text-transform: uppercase;
+  letter-spacing: -0.025em; line-height: 0.98; color: #fff; text-wrap: balance;
+}
+.co-hero-sub { color: #c3cfe3; font-size: 17px; max-width: 480px; line-height: 1.65; }
+.co-hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+.co-hero-facts { display: flex; flex-wrap: wrap; gap: 12px 32px; margin-left: 0; padding: 0; }
+.co-hero-facts > div { display: grid; gap: 2px; }
+.co-hero-facts dt {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--navy-200);
+}
+.co-hero-facts dd { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 16px; color: #fff; }
+.co-hero-media { position: relative; min-width: 0; }
+.co-hero .photo-img.co-hero-photo, .co-hero .photo-placeholder.co-hero-photo {
+  aspect-ratio: 4 / 3; border: 1px solid rgba(255,255,255,0.18);
+}
+.co-hero-card {
+  background: #fff; color: var(--ink); border-radius: var(--radius);
+  box-shadow: var(--shadow-lift); padding: 20px 22px; max-width: 340px;
+  margin: -56px 20px 0 auto; position: relative;
+}
+.co-hero-card b { font-family: var(--font-display); font-size: 18px; display: block; margin-top: 8px; }
+.co-hero-card span { color: var(--muted); font-size: 13.5px; display: block; margin-top: 2px; }
+
+/* ---- Hero booking panel ---- */
+.co-book {
+  position: relative; background: #fff; border: 1px solid var(--line);
+  border-top: 3px solid var(--green); border-radius: var(--radius);
+  box-shadow: var(--shadow-md); padding: 24px;
+  display: grid; gap: 16px; margin: 48px 0 64px;
+}
+@media (min-width: 860px) {
+  .co-book { grid-template-columns: 1.4fr 1fr 1fr auto; align-items: end; padding: 26px 28px; }
+  .co-book-go { min-height: 52px; white-space: nowrap; }
+}
+@media (max-width: 859px) {
+  .co-book-go { width: 100%; }
+}
+
+/* ---- Section headers ---- */
+.co-sec-head { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-wrap: wrap; }
+.co-sec-link {
+  font-family: var(--font-display); font-size: 13px; font-weight: 800;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--brand-900);
+  text-decoration: none; white-space: nowrap; padding-bottom: 6px;
+}
+.co-sec-link:hover { text-decoration: underline; }
+
+/* ---- Feature cards ---- */
+.co-feature {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  overflow: hidden; background: #fff; height: 100%;
+  transition: box-shadow 0.25s ease, transform 0.25s var(--ease);
+}
+.co-feature:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.co-feature .photo-img.co-feature-photo, .co-feature .photo-placeholder.co-feature-photo {
+  aspect-ratio: 16 / 9;
+}
+.co-feature-body { padding: 24px; display: grid; gap: 8px; align-content: start; }
+.co-feature-body h3 { font-size: 22px; text-transform: uppercase; }
+.co-feature-body p { color: var(--muted); font-size: 14.5px; }
+.co-feature-rate { font-family: var(--font-display); font-weight: 800; font-size: 19px; color: var(--navy-900); }
+.co-feature-info { background: var(--navy-900); border-color: var(--navy-900); color: #fff; }
+.co-feature-info p, .co-feature-info .check-list li { color: #c3cfe3; }
+.co-feature-info h3 { color: #fff; }
+
+/* ---- Process steps ---- */
+.co-steps {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; gap: 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+}
+@media (min-width: 920px) { .co-steps { grid-template-columns: repeat(5, 1fr); } }
+.co-steps li { padding: 26px 24px; background: #fff; }
+.co-steps li + li { border-top: 1px solid var(--line-soft); }
+@media (min-width: 920px) {
+  .co-steps li + li { border-top: 0; border-left: 1px solid var(--line-soft); }
+}
+.co-step-num {
+  font-family: var(--font-display); font-weight: 900; font-size: 13px;
+  letter-spacing: 0.2em; color: var(--red);
+}
+.co-steps b { display: block; font-family: var(--font-display); font-size: 16px; margin: 10px 0 6px; }
+.co-steps p { color: var(--muted); font-size: 13.5px; }
+
+/* ---- Trust blocks ---- */
+.co-trust { border-top: 2px solid var(--navy-900); padding-top: 20px; }
+.co-trust b { font-family: var(--font-display); font-size: 17px; text-transform: uppercase; letter-spacing: 0.01em; }
+.co-trust p { color: var(--muted); font-size: 14.5px; margin-top: 8px; }
+
+/* ---- Commercial homepage on small screens ---- */
+@media (max-width: 640px) {
+  .co-hero-grid { padding-top: 48px; gap: 32px; }
+  .co-hero-title { font-size: clamp(40px, 12vw, 56px); }
+  .co-hero-sub { font-size: 15.5px; }
+  .co-hero-card { margin: -40px 12px 0 auto; padding: 16px 18px; }
+  .co-book { margin: 36px 0 52px; padding: 20px 18px; }
+  .co-feature-body { padding: 20px 18px; }
+  .co-steps li { padding: 22px 20px; }
+}

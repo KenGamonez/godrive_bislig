@@ -304,6 +304,7 @@ export function SiteHeader() {
   const [more, setMore] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const { settings } = useAppStore();
 
   useEffect(() => { setOpen(false); setMore(false); }, [location.pathname]);
   useEffect(() => {
@@ -328,6 +329,12 @@ export function SiteHeader() {
 
   return (
     <>
+      <div className="co-topstrip" aria-label="GoDrive contact summary">
+        <div className="container co-topstrip-inner">
+          <span>Pickup: {settings.pickup}</span>
+          <span>Direct line: <a href={telHref(settings.phone)}>{settings.phone}</a> · Direct confirmation</span>
+        </div>
+      </div>
       <header className={`site-header${scrolled ? ' scrolled' : ''}`}>
         <div className="container site-header-inner">
           <Link to="/" className="brand" aria-label="GoDrive — home">
