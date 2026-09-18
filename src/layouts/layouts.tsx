@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { SiteHeader, SiteFooter, BrandLogo } from '../components/site';
 import { FloatingDock } from '../chat/FloatingDock';
@@ -33,6 +34,26 @@ export function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const pending = bookings.filter((b) => b.status === 'Pending').length;
+  const [menuOpen, setMenuOpen] = useState(false);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    if (menuOpen) closeRef.current?.focus();
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [menuOpen]);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
 
   if (!session.loggedIn && location.pathname !== '/admin/login') {
     return (
@@ -88,6 +109,13 @@ export function AdminLayout() {
       <div className="admin-main">
         <div className="admin-top">
           <div className="admin-top-inner">
+            <button
+              className="admin-burger"
+              onClick={() => setMenuOpen(true)}
+              aria-label="Open admin menu"
+            >
+              <span aria-hidden="true">☰</span>
+            </button>
             <div>
               <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: '0.16em', color: '#5c6672' }}>GODRIVE OWNER CONSOLE</div>
               <h1>{title}</h1>
@@ -95,12 +123,41 @@ export function AdminLayout() {
             <span className="demo-tag" style={{ marginLeft: 'auto' }}>{cloud ? 'Live database' : 'Demo data — local only'}</span>
           </div>
         </div>
-        <nav className="admin-mobile-nav" aria-label="Admin mobile">
-          {ADMIN_NAV.map((n) => (
-            <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => (isActive ? 'active' : '')}>
-              {n.label}{n.to === '/admin/bookings' && pending > 0 ? ` (${pending})` : ''}
-            </NavLink>
-          ))}
+        {menuOpen && (
+          <div className="admin-scrim" onClick={() => setMenuOpen(false)} aria-hidden="true" />
+        )}
+        <nav className={`admin-drawer${menuOpen ? ' open' : ''}`} aria-label="Admin">
+          <div className="admin-drawer-head">
+            <Link to="/" className="brand" style={{ textDecoration: 'none' }} aria-label="GoDrive — home">
+              <BrandLogo onDark />
+            </Link>
+            <button
+              ref={closeRef}
+              className="modal-x"
+              onClick={() => setMenuOpen(false)}
+              aria-label="Close admin menu"
+            >
+              ×
+            </button>
+          </div>
+          <div className="admin-drawer-links">
+            {ADMIN_NAV.map((n) => (
+              <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => (isActive ? 'active' : '')}>
+                <span>{n.label}</span>
+                {n.to === '/admin/bookings' && pending > 0 && <span className="admin-count">{pending}</span>}
+                {n.to === '/admin/messages' && unreadMessages > 0 && <span className="admin-count">{unreadMessages}</span>}
+              </NavLink>
+            ))}
+          </div>
+          <div className="admin-drawer-foot">
+            <Link to="/" style={{ color: '#8fa3c8', fontSize: 13.5, textDecoration: 'none' }}>← View public website</Link>
+            <button
+              className="btn btn-outline-light btn-sm"
+              onClick={() => { logout(); navigate('/admin/login'); }}
+            >
+              Sign Out
+            </button>
+          </div>
         </nav>
         <div className="admin-body">
           <Outlet />

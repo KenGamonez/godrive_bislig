@@ -37,7 +37,46 @@ export function AvailabilityPage() {
           ? 'Rental calendar — bookings overlay live records; cell edits save day-blocks.'
           : 'Demo availability board — click any cell to cycle status. Changes are local only.'}
       </span>
-      <div className="panel">
+      <div className="cal-agenda" aria-label="Bookings by day">
+        {boardDates.map((d) => {
+          const items: Array<{ key: string; title: string; sub: string; status: string }> = [];
+          for (const v of fleet) {
+            const o = overrides.find((x) => x.vehicleId === v.id && x.date === d);
+            if (o) {
+              items.push({ key: `${v.id}-${d}`, title: v.name, sub: `Blocked · ${o.status}`, status: o.status });
+              continue;
+            }
+            const b = covering(v.id, d);
+            if (b) {
+              items.push({
+                key: `${v.id}-${d}`,
+                title: v.name,
+                sub: `${b.reference} · ${b.fullName} · ${formatDateLong(b.pickupDate)} → ${formatDateLong(b.returnDate)}`,
+                status: b.status,
+              });
+            }
+          }
+          return (
+            <section key={d} className="cal-day" aria-label={formatDateLong(d)}>
+              <div className="cal-day-head">
+                <span>{formatDateLong(d)}</span>
+                <small>{items.length === 0 ? 'All clear' : `${items.length} item${items.length === 1 ? '' : 's'}`}</small>
+              </div>
+              {items.length === 0 ? (
+                <p className="cal-empty">No bookings or blocks — fleet default applies.</p>
+              ) : (
+                items.map((it) => (
+                  <div key={it.key} className="cal-item">
+                    <b>{it.title}</b>
+                    <small>{it.sub} · {it.status}</small>
+                  </div>
+                ))
+              )}
+            </section>
+          );
+        })}
+      </div>
+      <div className="panel cal-board">
         <div className="panel-head">
           <h3>Rental calendar · 7 days</h3>
           <div style={{ display: 'flex', gap: 8 }}>

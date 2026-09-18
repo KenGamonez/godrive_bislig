@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { StatusBadge } from '../../components/site';
 import { useAppStore } from '../../store/AppStore';
 import { formatDateLong } from '../../utils/booking';
@@ -25,9 +25,14 @@ export function CustomersPage() {
     : [];
   const completedCount = selectedBookings.filter((b) => b.status === 'Completed').length;
 
+  const detailRef = useRef<HTMLDivElement>(null);
+
   const openCustomer = (id: string, notes: string) => {
     setSelectedId(id);
     setDraftNotes(notes);
+    if (window.innerWidth < 720) {
+      window.setTimeout(() => detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+    }
   };
 
   const saveNotes = async () => {
@@ -53,7 +58,30 @@ export function CustomersPage() {
         <input type="search" placeholder="Search name, mobile, email…" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search customers" />
       </div>
       <div className="detail-grid">
-        <div className="panel">
+        <div className="admin-cards" role="list" aria-label="Customers">
+          {filtered.length === 0 && (
+            <p className="mybooking-empty">No customers match.</p>
+          )}
+          {filtered.map((c) => {
+            const hist = bookings.filter((b) => c.bookingIds.includes(b.id));
+            const latest = [...hist].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))[0];
+            return (
+              <article key={c.id} className="acard" role="listitem" onClick={() => openCustomer(c.id, c.notes)} style={{ cursor: 'pointer' }}>
+                <div className="acard-top">
+                  <b>{c.name}</b>
+                  <a href={`tel:+63${c.mobile.replace(/^0/, '').replace(/[^0-9]/g, '')}`} onClick={(e) => e.stopPropagation()} aria-label={`Call ${c.name}`}>
+                    {c.mobile}
+                  </a>
+                </div>
+                <div className="acard-sub">{c.email ?? 'No email'}</div>
+                <div className="acard-foot">
+                  <span className="small">{hist.length} booking{hist.length === 1 ? '' : 's'}{latest ? ` · latest ${latest.reference}` : ''}</span>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+        <div className="panel admin-table">
           <div className="table-wrap">
             <table className="tbl">
               <thead><tr><th>Name</th><th>Mobile</th><th>Bookings</th><th>Completed</th></tr></thead>
@@ -76,7 +104,7 @@ export function CustomersPage() {
             </table>
           </div>
         </div>
-        <div className="panel panel-pad" style={{ alignSelf: 'start' }}>
+        <div ref={detailRef} className="panel panel-pad" style={{ alignSelf: 'start' }}>
           {!selected ? (
             <>
               <h3 className="h-sub">Customer detail</h3>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { BookingStatus } from '../../types';
 import { StatusBadge } from '../../components/site';
 import { useAppStore } from '../../store/AppStore';
@@ -32,6 +32,14 @@ export function BookingsPage() {
   }, [bookings, query, status, type, vehicleName]);
 
   const selected = bookings.find((b) => b.id === selectedId) ?? null;
+  const detailRef = useRef<HTMLDivElement>(null);
+
+  const select = (id: string) => {
+    setSelectedId(id);
+    if (window.innerWidth < 720) {
+      window.setTimeout(() => detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+    }
+  };
 
   const action = async (id: string, s: BookingStatus) => {
     setActionError(null);
@@ -89,7 +97,28 @@ export function BookingsPage() {
       </div>
 
       <div className="detail-grid">
-        <div className="panel">
+        <div className="admin-cards" role="list" aria-label="Bookings">
+          {filtered.length === 0 && (
+            <p className="mybooking-empty">No bookings match this filter.</p>
+          )}
+          {filtered.map((b) => (
+            <article key={b.id} className="acard" role="listitem">
+              <div className="acard-top">
+                <b>{b.reference}</b>
+                <StatusBadge status={b.status} />
+              </div>
+              <div className="acard-sub">{b.fullName} · {vehicleName(b.vehicleId)}</div>
+              <div className="acard-sub">{formatDateLong(b.pickupDate)} → {formatDateLong(b.returnDate)}</div>
+              <div className="acard-foot">
+                <b style={{ fontFamily: 'var(--font-display)', fontSize: 16 }}>
+                  {b.estimatedAmount !== null ? formatPeso(b.estimatedAmount) : 'To be confirmed'}
+                </b>
+                <button className="btn btn-outline btn-sm" onClick={() => select(b.id)}>View</button>
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className="panel admin-table">
           <div className="table-wrap">
             <table className="tbl">
               <thead><tr><th>Reference</th><th>Customer</th><th>Vehicle</th><th>Type</th><th>Dates</th><th>Status</th></tr></thead>
@@ -98,7 +127,7 @@ export function BookingsPage() {
                   <tr><td colSpan={6} style={{ color: 'var(--muted)' }}>No bookings match this filter.</td></tr>
                 )}
                 {filtered.map((b) => (
-                  <tr key={b.id} className="clickable" onClick={() => setSelectedId(b.id)}>
+                  <tr key={b.id} className="clickable" onClick={() => select(b.id)}>
                     <td><b>{b.reference}</b></td>
                     <td>{b.fullName}<div className="small">{b.mobile}</div></td>
                     <td>{vehicleName(b.vehicleId)}</td>
@@ -112,7 +141,7 @@ export function BookingsPage() {
           </div>
         </div>
 
-        <div className="panel panel-pad" style={{ alignSelf: 'start' }}>
+        <div ref={detailRef} className="panel panel-pad" style={{ alignSelf: 'start' }}>
           {!selected ? (
             <>
               <h3 className="h-sub">Booking detail</h3>

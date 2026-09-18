@@ -150,7 +150,48 @@ export function FleetAdminPage() {
           Add Vehicle +
         </button>
       </div>
-      <div className="panel">
+      <div className="admin-cards" role="list" aria-label="Vehicles">
+        {fleet.map((v) => (
+          <article key={v.id} className="acard" role="listitem">
+            <div className="acard-top">
+              <b>{v.name}</b>
+              <StatusBadge status={vehicleStatus[v.id] ?? 'Available'} />
+            </div>
+            <div className="acard-sub">{v.bodyType} · {v.transmission} · <b style={{ color: 'var(--ink)' }}>{formatPeso(v.startingRatePerDay)}/day</b></div>
+            <div className="field">
+              <label htmlFor={`m-av-${v.id}`}>Availability</label>
+              <select
+                id={`m-av-${v.id}`}
+                value={vehicleStatus[v.id] ?? 'Available'}
+                onChange={(e) => setVehicleStatus(v.id, e.target.value as VehicleAvailability)}
+              >
+                <option>Available</option>
+                <option>Reserved</option>
+                <option>Unavailable</option>
+                <option>Inactive</option>
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor={`m-mn-${v.id}`}>Maintenance</label>
+              <select
+                id={`m-mn-${v.id}`}
+                value={maintenance[v.id] ?? 'Good'}
+                onChange={(e) => setMaintenance(v.id, e.target.value as MaintenanceStatus)}
+              >
+                <option>Good</option>
+                <option>Scheduled</option>
+                <option>In Shop</option>
+              </select>
+            </div>
+            <div className="acard-foot" style={{ borderTop: 0, paddingTop: 0 }}>
+              <button className="btn btn-ghost btn-sm" onClick={() => setViewing(v)}>View</button>
+              <button className="btn btn-ghost btn-sm" onClick={() => openEdit(v)}>Edit</button>
+              <button className="btn btn-ghost btn-sm" onClick={() => void removeVehicle(v)}>Remove</button>
+            </div>
+          </article>
+        ))}
+      </div>
+      <div className="panel admin-table">
         <div className="table-wrap">
           <table className="tbl" style={{ minWidth: 860 }}>
             <thead>

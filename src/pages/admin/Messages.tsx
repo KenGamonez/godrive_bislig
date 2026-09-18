@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { ContactMessageStatus } from '../../types';
 import { StatusBadge } from '../../components/site';
 import { useAppStore } from '../../store/AppStore';
@@ -27,6 +27,14 @@ export function MessagesPage() {
   }, [messages, filter]);
 
   const selected = messages.find((m) => m.id === selectedId) ?? null;
+  const detailRef = useRef<HTMLDivElement>(null);
+
+  const select = (id: string) => {
+    setSelectedId(id);
+    if (window.innerWidth < 720) {
+      window.setTimeout(() => detailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+    }
+  };
 
   const act = async (id: string, s: ContactMessageStatus) => {
     setActionError(null);
@@ -51,7 +59,31 @@ export function MessagesPage() {
       </div>
 
       <div className="detail-grid">
-        <div className="panel">
+        <div className="admin-cards" role="list" aria-label="Messages">
+          {filtered.length === 0 && (
+            <p className="mybooking-empty">No messages in this view.</p>
+          )}
+          {filtered.map((m) => (
+            <article
+              key={m.id}
+              role="listitem"
+              className={`acard${m.status === 'unread' ? ' acard-unread' : ''}`}
+              onClick={() => select(m.id)}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="acard-top">
+                <b>{m.name}</b>
+                <StatusBadge status={badgeFor(m.status)} />
+              </div>
+              <div className="acard-sub"><b style={{ color: 'var(--ink)' }}>{m.subject}</b></div>
+              <div className="acard-sub">{m.message.length > 90 ? `${m.message.slice(0, 90)}…` : m.message}</div>
+              <div className="acard-foot">
+                <span className="small">{m.phone} · {formatDateLong(m.createdAt.slice(0, 10))}</span>
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className="panel admin-table">
           <div className="table-wrap">
             <table className="tbl">
               <thead><tr><th>Sender</th><th>Subject</th><th>Message</th><th>Received</th><th>Status</th></tr></thead>
@@ -60,7 +92,7 @@ export function MessagesPage() {
                   <tr><td colSpan={5} style={{ color: 'var(--muted)' }}>No messages in this view.</td></tr>
                 )}
                 {filtered.map((m) => (
-                  <tr key={m.id} className="clickable" onClick={() => setSelectedId(m.id)}>
+                  <tr key={m.id} className="clickable" onClick={() => select(m.id)}>
                     <td><b>{m.name}</b><div className="small">{m.phone}</div></td>
                     <td>{m.subject}</td>
                     <td className="small">{m.message.length > 72 ? `${m.message.slice(0, 72)}…` : m.message}</td>
@@ -73,7 +105,7 @@ export function MessagesPage() {
           </div>
         </div>
 
-        <div className="panel panel-pad" style={{ alignSelf: 'start' }}>
+        <div ref={detailRef} className="panel panel-pad" style={{ alignSelf: 'start' }}>
           {!selected ? (
             <>
               <h3 className="h-sub">Message detail</h3>
