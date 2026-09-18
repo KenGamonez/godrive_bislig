@@ -162,8 +162,6 @@ function useDebouncedPush(fn: () => void, deps: unknown[], delay = 900): void {
   }, deps);
 }
 
-const LIVE_STATUSES: VehicleAvailability[] = ['Available', 'Reserved', 'Unavailable', 'Inactive'];
-
 const BOOKINGS_KEY = isCloudEnabled() ? 'godrive.bookings.cloud.v1' : 'godrive.bookings.v1';
 
 export function AppStoreProvider({ children }: { children: React.ReactNode }) {
@@ -392,9 +390,9 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
     () => {
       const sb = getSupabase();
       if (!sb || !authEmail) return;
-      const statusJobs = Object.entries(vehicleStatus)
-        .filter(([s]) => (LIVE_STATUSES as string[]).includes(s as string))
-        .map(([id, status]) => sb.from('vehicles').update({ status }).eq('id', id));
+      const statusJobs = Object.entries(vehicleStatus).map(([id, status]) =>
+        sb.from('vehicles').update({ status }).eq('id', id),
+      );
       const maintJobs = Object.entries(maintenance).map(([id, m]) =>
         sb.from('vehicles').update({ maintenance: m }).eq('id', id),
       );
