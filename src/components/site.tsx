@@ -347,7 +347,7 @@ export function SiteHeader() {
                 </div>
               )}
             </div>
-            <Link to="/book" className="btn btn-ink btn-sm header-cta">
+            <Link to="/book" className="btn btn-book btn-sm header-cta">
               Book <span className="arr" aria-hidden="true">→</span>
             </Link>
           </nav>

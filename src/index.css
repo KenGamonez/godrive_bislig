@@ -141,6 +141,9 @@ input, select, textarea { font-family: inherit; font-size: 16px; }
    Reserved for the navigation Book action to keep it prominent yet editorial. */
 .btn-ink { background: var(--navy-950); border-color: var(--navy-950); color: #fff; }
 .btn-ink:hover { background: var(--navy-900); border-color: var(--navy-900); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+/* Desktop header BOOK CTA — green for contrast. Scoped to beat .nav-desktop a text color. */
+.nav-desktop a.btn-book { background: var(--green); border-color: var(--green); color: #fff; }
+.nav-desktop a.btn-book:hover { background: var(--green); border-color: var(--green); color: #fff; filter: brightness(0.9); }
 .btn-accent { background: #fff; color: var(--brand-950); }
 .btn-accent:hover { background: var(--brand-100); transform: translateY(-1px); }
 .btn-outline { border-color: var(--line); background: #fff; color: var(--brand-950); }
