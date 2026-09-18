@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { BUSINESS } from '../data/business';
+import { useAppStore } from '../store/AppStore';
+import { telHref } from '../utils/booking';
 
 /* ============================================================
    Vehicle illustration — refined local SVG artwork.
@@ -287,6 +289,16 @@ const NAV_MORE = [
   { to: '/contact', label: 'Contact', hint: 'Talk to GoDrive directly' },
 ];
 
+function MobileContact() {
+  const { settings } = useAppStore();
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+      <span>{settings.pickup}</span>
+      <a href={telHref(settings.phone)} style={{ color: '#fff', fontWeight: 700 }}>{settings.phone}</a>
+    </div>
+  );
+}
+
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [more, setMore] = useState(false);
@@ -374,14 +386,11 @@ export function SiteHeader() {
               {n.label} <span aria-hidden="true">→</span>
             </Link>
           ))}
-          <div className="mm-foot">
+            <div className="mm-foot">
             <Link to="/book" className="btn btn-light btn-block">
               Book a Vehicle <span className="arr" aria-hidden="true">→</span>
             </Link>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-              <span>{BUSINESS.pickup}</span>
-              <a href={BUSINESS.phoneHref} style={{ color: '#fff', fontWeight: 700 }}>{BUSINESS.phone}</a>
-            </div>
+            <MobileContact />
           </div>
         </nav>
       )}
@@ -395,6 +404,7 @@ export function SiteHeader() {
 }
 
 export function SiteFooter() {
+  const { settings } = useAppStore();
   return (
     <footer className="site-footer">
       <div className="container footer-grid">
@@ -417,16 +427,16 @@ export function SiteFooter() {
         </div>
         <div className="footer-contact">
           <h4>Direct line</h4>
-          <span style={{ fontSize: 13 }}>{BUSINESS.contactPerson}</span>
-          <b><a href={BUSINESS.phoneHref} style={{ color: '#fff' }}>{BUSINESS.phone}</a></b>
+          <span style={{ fontSize: 13 }}>{settings.contactPerson}</span>
+          <b><a href={telHref(settings.phone)} style={{ color: '#fff' }}>{settings.phone}</a></b>
           <ul className="footer-links" style={{ marginTop: 14 }}>
-            <li><a href={BUSINESS.facebookUrl} target="_blank" rel="noreferrer">Facebook Page →</a></li>
+            <li><a href={settings.facebookUrl} target="_blank" rel="noreferrer">Facebook Page →</a></li>
           </ul>
         </div>
         <div>
           <h4>Pickup</h4>
-          <p style={{ fontSize: 15, color: '#fff', fontWeight: 600 }}>{BUSINESS.pickup}</p>
-          <p className="mt-16" style={{ fontSize: 13.5 }}>{BUSINESS.tagline}</p>
+          <p style={{ fontSize: 15, color: '#fff', fontWeight: 600 }}>{settings.pickup}</p>
+          <p className="mt-16" style={{ fontSize: 13.5 }}>{settings.tagline}</p>
           <Link to="/book" className="btn btn-outline-light btn-sm mt-24">
             Book a Vehicle <span className="arr" aria-hidden="true">→</span>
           </Link>
@@ -437,8 +447,8 @@ export function SiteFooter() {
       </div>
       <div className="footer-bottom">
         <div className="container footer-bottom-inner">
-          <span>© 2026 {BUSINESS.name}. All rights reserved.</span>
-          <span>Pickup: {BUSINESS.pickup}</span>
+          <span>© 2026 {settings.businessName}. All rights reserved.</span>
+          <span>Pickup: {settings.pickup}</span>
         </div>
       </div>
     </footer>
@@ -463,6 +473,7 @@ export function FinalCta({
   secondaryLabel?: string;
   secondaryTo?: string;
 }) {
+  const { settings } = useAppStore();
   return (
     <section className="final">
       <div className="container final-grid">
@@ -471,8 +482,8 @@ export function FinalCta({
           <h2>{title}</h2>
           <p>{copy}</p>
           <div className="final-meta">
-            <span>Pickup · <strong>{BUSINESS.pickup}</strong></span>
-            <span>Direct · <strong>{BUSINESS.phone}</strong></span>
+            <span>Pickup · <strong>{settings.pickup}</strong></span>
+            <span>Direct · <strong>{settings.phone}</strong></span>
           </div>
         </Reveal>
         <Reveal delay={0.12}>

@@ -5,14 +5,26 @@ import { useAppStore } from '../../store/AppStore';
 import { VehicleArt, BrandLogo } from '../../components/site';
 
 export function AdminLoginPage() {
-  const { login } = useAppStore();
+  const { login, cloud } = useAppStore();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('owner@godrive-bislig.local');
-  const [password, setPassword] = useState('demo-owner');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    login();
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    const err = await login(email, password);
+    setBusy(false);
+    if (err) {
+      setError(err === 'Invalid login credentials'
+        ? 'Wrong email or password. Only the GoDrive owner account can sign in.'
+        : `Sign-in failed (${err}). Try again.`);
+      return;
+    }
     navigate('/admin');
   };
 
@@ -39,10 +51,12 @@ export function AdminLoginPage() {
         <form className="login-card" onSubmit={submit}>
           <span className="eyebrow">Owner sign in</span>
           <h2 className="h-sub">Welcome back.</h2>
-          <div className="note-box warn">
-            <b>Local demo sign-in.</b> Authentication is mocked in this frontend
-            build — any credentials continue. Do not treat this as secure.
-          </div>
+          {!cloud && (
+            <div className="note-box warn">
+              <b>Local demo sign-in.</b> The backend is not connected — any credentials continue on this device only.
+            </div>
+          )}
+          {error && <p className="field-error" role="alert">{error}</p>}
           <div className="field">
             <label htmlFor="a-email">Email</label>
             <input id="a-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" />
@@ -51,7 +65,9 @@ export function AdminLoginPage() {
             <label htmlFor="a-pass">Password</label>
             <input id="a-pass" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
           </div>
-          <button className="btn btn-primary btn-block" type="submit">Sign In (Demo)</button>
+          <button className="btn btn-primary btn-block" type="submit" disabled={busy}>
+            {busy ? 'Signing in…' : 'Sign In'}
+          </button>
           <Link to="/" className="btn btn-outline-danger btn-block">← Back to website</Link>
         </form>
       </div>

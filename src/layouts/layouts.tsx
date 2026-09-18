@@ -18,17 +18,18 @@ export function PublicLayout() {
 }
 
 const ADMIN_NAV = [
-  { to: '/admin', label: 'Overview', end: true },
+  { to: '/admin', label: 'Dashboard', end: true },
   { to: '/admin/bookings', label: 'Bookings' },
-  { to: '/admin/fleet', label: 'Fleet' },
+  { to: '/admin/availability', label: 'Calendar' },
+  { to: '/admin/fleet', label: 'Vehicles' },
   { to: '/admin/customers', label: 'Customers' },
-  { to: '/admin/availability', label: 'Availability' },
+  { to: '/admin/messages', label: 'Messages' },
   { to: '/admin/reports', label: 'Reports' },
   { to: '/admin/settings', label: 'Settings' },
 ];
 
 export function AdminLayout() {
-  const { session, logout, bookings } = useAppStore();
+  const { session, logout, bookings, unreadMessages, cloud } = useAppStore();
   const navigate = useNavigate();
   const location = useLocation();
   const pending = bookings.filter((b) => b.status === 'Pending').length;
@@ -40,7 +41,7 @@ export function AdminLayout() {
           <div className="panel panel-pad">
             <span className="eyebrow">Owner access</span>
             <h2 className="h-sub mt-16">Sign in required</h2>
-            <p className="small mt-16">The management dashboard is a local demo in this frontend build. Continue to the mock owner sign-in.</p>
+            <p className="small mt-16">The management dashboard is restricted to the GoDrive owner account. Continue to the owner sign-in.</p>
             <Link to="/admin/login" className="btn btn-primary mt-24">Go to Owner Sign In</Link>
           </div>
         </div>
@@ -61,14 +62,15 @@ export function AdminLayout() {
           <Link to="/" className="brand" style={{ textDecoration: 'none' }} aria-label="GoDrive — home">
             <BrandLogo onDark />
           </Link>
-          <span className="demo-tag mt-16" style={{ background: 'transparent', color: '#8fa3c8', borderColor: 'rgba(255,255,255,0.2)' }}>
-            Demo data — local only
+          <span className="demo-tag mt-16" style={{ background: cloud ? 'rgba(61,220,132,0.12)' : 'transparent', color: cloud ? '#7ee2a8' : '#8fa3c8', borderColor: 'rgba(255,255,255,0.2)' }}>
+            {cloud ? 'Live database connected' : 'Demo data — local only'}
           </span>
           <nav className="admin-nav" aria-label="Admin">
             {ADMIN_NAV.map((n) => (
               <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => (isActive ? 'active' : '')}>
                 <span>{n.label}</span>
                 {n.to === '/admin/bookings' && pending > 0 && <span className="admin-count">{pending}</span>}
+                {n.to === '/admin/messages' && unreadMessages > 0 && <span className="admin-count">{unreadMessages}</span>}
               </NavLink>
             ))}
           </nav>
@@ -78,7 +80,7 @@ export function AdminLayout() {
               className="btn btn-outline-light btn-sm"
               onClick={() => { logout(); navigate('/admin/login'); }}
             >
-              Sign Out (mock)
+              Sign Out
             </button>
           </div>
         </div>
@@ -90,7 +92,7 @@ export function AdminLayout() {
               <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: '0.16em', color: '#5c6672' }}>GODRIVE OWNER CONSOLE</div>
               <h1>{title}</h1>
             </div>
-            <span className="demo-tag" style={{ marginLeft: 'auto' }}>Demo data — local only</span>
+            <span className="demo-tag" style={{ marginLeft: 'auto' }}>{cloud ? 'Live database' : 'Demo data — local only'}</span>
           </div>
         </div>
         <nav className="admin-mobile-nav" aria-label="Admin mobile">

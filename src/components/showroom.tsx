@@ -33,11 +33,12 @@ export function VehiclePhoto({
   eager?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
-  useEffect(() => setFailed(false), [src]);
-  if (src && !failed) {
+  const resolved = src ?? vehicle.photoUrl;
+  useEffect(() => setFailed(false), [src, vehicle.photoUrl]);
+  if (resolved && !failed) {
     return (
       <img
-        src={src}
+        src={resolved}
         alt={vehicle.name}
         className={`photo-img ${className}`}
         loading={eager ? 'eager' : 'lazy'}
@@ -210,13 +211,14 @@ export function VehicleCarousel({
 }: {
   onInspect?: (v: Vehicle) => void;
 }) {
-  const { vehicleStatus } = useAppStore();
+  const { vehicleStatus, activeFleet } = useAppStore();
   const [index, setIndex] = useState(0);
   const [leaving, setLeaving] = useState<'left' | 'right' | null>(null);
   const touchX = useRef<number | null>(null);
   const timer = useRef<number | null>(null);
-  const total = VEHICLES.length;
-  const vehicle = VEHICLES[index];
+  const list = activeFleet.length > 0 ? activeFleet : VEHICLES;
+  const total = list.length;
+  const vehicle = list[index % total];
   const { photos } = useVehiclePhotos(vehicle.id);
   const heroPhoto = photos[0]?.src;
   const status = vehicleStatus[vehicle.id] ?? 'Available';
@@ -324,7 +326,7 @@ export function VehicleCarousel({
           <button onClick={() => go(1)} aria-label="Next vehicle">→</button>
         </div>
         <div className="showroom-dots" role="tablist" aria-label="Vehicles">
-          {VEHICLES.map((v, i) => (
+          {list.map((v, i) => (
             <button
               key={v.id}
               role="tab"

@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { fleetStartingRate } from '../../data/fleet';
 import { VehicleCarousel } from '../../components/showroom';
 import { VehicleModal, useVehicleModal } from '../../components/fleet';
 import { useAppStore } from '../../store/AppStore';
@@ -11,7 +10,7 @@ import { formatPeso } from '../../utils/booking';
  */
 export function HomePage() {
   const modal = useVehicleModal();
-  const { settings, bookings } = useAppStore();
+  const { settings, bookings, fleetStartingRate } = useAppStore();
   const latest = bookings[0];
   const wd = settings.withDriverRates;
 

@@ -77,6 +77,12 @@ export function isValidPHMobile(mobile: string): boolean {
   return /^09\d{9}$/.test(mobile.replace(/[\s-]/g, ''));
 }
 
+/** tel: link for a Philippine mobile number (09… → +639…). */
+export function telHref(phone: string): string {
+  const digits = phone.replace(/[^0-9]/g, '').replace(/^0/, '');
+  return `tel:+63${digits}`;
+}
+
 export function isValidEmailOptional(email: string): boolean {
   if (!email.trim()) return true;
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());

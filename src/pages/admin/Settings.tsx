@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { VEHICLES } from '../../data/business';
 import { useAppStore } from '../../store/AppStore';
 import { formatPeso } from '../../utils/booking';
 
 export function SettingsPage() {
-  const { settings, updateSettings, vehicleRates, setVehicleRates } = useAppStore();
+  const { settings, updateSettings, vehicleRates, setVehicleRates, fleet, cloud } = useAppStore();
   const [saved, setSaved] = useState(false);
 
   const save = () => {
@@ -14,8 +13,10 @@ export function SettingsPage() {
 
   return (
     <>
-      <span className="demo-tag">Demo settings — edits update local state only. A future backend will own these values.</span>
-      {saved && <div className="note-box">Settings updated locally in this browser.</div>}
+      <span className="demo-tag">
+        {cloud ? 'Business settings sync to the live database as you type.' : 'Demo settings — edits update local state only.'}
+      </span>
+      {saved && <div className="note-box">Settings updated.</div>}
 
       <div className="panel panel-pad">
         <h3 className="h-sub">Business information</h3>
@@ -54,7 +55,7 @@ export function SettingsPage() {
       <div className="panel panel-pad">
         <h3 className="h-sub">Self-drive rates (₱ / day)</h3>
         <p className="small mt-16">Each vehicle is priced by destination zone. These feed the public Rates page and the booking estimator.</p>
-        {VEHICLES.map((v) => {
+        {fleet.map((v) => {
           const rates = vehicleRates(v.id);
           return (
             <div key={v.id} className="mt-24">
@@ -118,7 +119,7 @@ export function SettingsPage() {
           <textarea id="s-notice" value={settings.bookingNotice} onChange={(e) => updateSettings({ bookingNotice: e.target.value })} />
         </div>
         <div className="action-row">
-          <button className="btn btn-primary" onClick={save}>Save Settings (local)</button>
+          <button className="btn btn-primary" onClick={save}>Save Settings</button>
         </div>
       </div>
     </>

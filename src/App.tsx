@@ -15,6 +15,7 @@ import { DashboardPage } from './pages/admin/Dashboard';
 import { BookingsPage } from './pages/admin/Bookings';
 import { FleetAdminPage } from './pages/admin/FleetAdmin';
 import { CustomersPage } from './pages/admin/Customers';
+import { MessagesPage } from './pages/admin/Messages';
 import { AvailabilityPage } from './pages/admin/Availability';
 import { ReportsPage } from './pages/admin/Reports';
 import { SettingsPage } from './pages/admin/Settings';
@@ -58,6 +59,7 @@ export default function App() {
         <Route path="bookings" element={<BookingsPage />} />
         <Route path="fleet" element={<FleetAdminPage />} />
         <Route path="customers" element={<CustomersPage />} />
+        <Route path="messages" element={<MessagesPage />} />
         <Route path="availability" element={<AvailabilityPage />} />
         <Route path="reports" element={<ReportsPage />} />
         <Route path="settings" element={<SettingsPage />} />

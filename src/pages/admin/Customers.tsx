@@ -1,14 +1,15 @@
 import { useMemo, useState } from 'react';
-import { VEHICLES } from '../../data/business';
 import { StatusBadge } from '../../components/site';
 import { useAppStore } from '../../store/AppStore';
 import { formatDateLong } from '../../utils/booking';
 
 export function CustomersPage() {
-  const { customers, bookings, updateCustomerNotes } = useAppStore();
+  const { customers, bookings, updateCustomerNotes, vehicleName, cloud } = useAppStore();
   const [query, setQuery] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draftNotes, setDraftNotes] = useState('');
+  const [noteState, setNoteState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [noteError, setNoteError] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -29,9 +30,25 @@ export function CustomersPage() {
     setDraftNotes(notes);
   };
 
+  const saveNotes = async () => {
+    if (!selected) return;
+    setNoteState('saving');
+    setNoteError(null);
+    const err = await updateCustomerNotes(selected.mobile, draftNotes);
+    if (err) {
+      setNoteState('error');
+      setNoteError(`Could not save notes (${err}).`);
+      return;
+    }
+    setNoteState('saved');
+    window.setTimeout(() => setNoteState('idle'), 2200);
+  };
+
   return (
     <>
-      <span className="demo-tag">Demo customers — derived from bookings, stored locally.</span>
+      <span className="demo-tag">
+        {cloud ? `${customers.length} customer${customers.length === 1 ? '' : 's'} from live bookings.` : 'Demo customers — derived from bookings, stored locally.'}
+      </span>
       <div className="toolbar">
         <input type="search" placeholder="Search name, mobile, email…" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search customers" />
       </div>
@@ -81,7 +98,7 @@ export function CustomersPage() {
                   <div key={b.id} style={{ border: '1px solid var(--line)', borderRadius: 4, padding: '12px 14px', display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'center' }}>
                     <div>
                       <b style={{ fontSize: 13.5 }}>{b.reference}</b>
-                      <div className="small">{VEHICLES.find((v) => v.id === b.vehicleId)?.name} · {formatDateLong(b.pickupDate)}</div>
+                      <div className="small">{vehicleName(b.vehicleId)} · {formatDateLong(b.pickupDate)}</div>
                     </div>
                     <StatusBadge status={b.status} />
                   </div>
@@ -89,11 +106,15 @@ export function CustomersPage() {
               </div>
               <h4 className="mt-24" style={{ fontSize: 13, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)' }}>Notes</h4>
               <div className="field mt-16">
-                <label htmlFor="c-notes">Owner notes (local only)</label>
-                <textarea id="c-notes" value={draftNotes} onChange={(e) => setDraftNotes(e.target.value)} placeholder="Add a note about this customer…" />
+                <label htmlFor="c-notes">Owner notes</label>
+                <textarea id="c-notes" value={draftNotes} onChange={(e) => { setDraftNotes(e.target.value); setNoteState('idle'); }} placeholder="Add a note about this customer…" />
               </div>
+              {noteState === 'saved' && <p className="small mt-16">Notes saved.</p>}
+              {noteState === 'error' && noteError && <p className="field-error mt-16" role="alert">{noteError}</p>}
               <div className="action-row">
-                <button className="btn btn-primary btn-sm" onClick={() => updateCustomerNotes(selected.id, draftNotes)}>Save Notes</button>
+                <button className="btn btn-primary btn-sm" onClick={() => void saveNotes()} disabled={noteState === 'saving'}>
+                  {noteState === 'saving' ? 'Saving…' : 'Save Notes'}
+                </button>
               </div>
             </>
           )}

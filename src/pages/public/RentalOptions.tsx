@@ -1,11 +1,10 @@
 import { Link } from 'react-router-dom';
-import { VEHICLES } from '../../data/business';
 import { FinalCta, Reveal, SectionHead } from '../../components/site';
 import { useAppStore } from '../../store/AppStore';
 import { formatPeso } from '../../utils/booking';
 
 export function RentalOptionsPage() {
-  const { settings, vehicleRates } = useAppStore();
+  const { settings, vehicleRates, activeFleet } = useAppStore();
   return (
     <>
       <section className="page-hero">
@@ -31,7 +30,7 @@ export function RentalOptionsPage() {
                   <li><span>You drive</span><b>The vehicle is entrusted to you</b></li>
                   <li><span>License</span><b>Valid license required</b></li>
                   <li><span>Income proof</span><b>Required</b></li>
-                  {VEHICLES.map((v) => {
+                  {activeFleet.map((v) => {
                     const rates = vehicleRates(v.id);
                     const lo = Math.min(...rates.map((r) => r.amountPerDay));
                     const hi = Math.max(...rates.map((r) => r.amountPerDay));

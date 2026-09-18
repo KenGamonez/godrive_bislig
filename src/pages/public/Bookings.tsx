@@ -1,9 +1,11 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import { FinalCta, Reveal } from '../../components/site';
 import { MyBookingLookup } from '../../components/booking';
+import { useAppStore } from '../../store/AppStore';
 
 export function BookingsPage() {
   const [params] = useSearchParams();
+  const { cloud } = useAppStore();
   const initial = params.get('ref') ?? params.get('q') ?? '';
   return (
     <>
@@ -32,7 +34,9 @@ export function BookingsPage() {
       <FinalCta
         eyebrow="Bookings"
         title="Can't find your reference?"
-        copy="References live in this browser's local demo data — or call GoDrive and confirm directly."
+        copy={cloud
+          ? 'Look up any booking with its reference — or call GoDrive and confirm directly.'
+          : 'References live in this browser\u2019s local demo data — or call GoDrive and confirm directly.'}
         primaryLabel="Contact GoDrive"
         primaryTo="/contact"
         secondaryLabel="Book Again"

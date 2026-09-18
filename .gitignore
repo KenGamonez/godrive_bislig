@@ -30,3 +30,5 @@ Thumbs.db
 
 .vercel
 .env*
+# Allow the committed env template (must stay after the rules above).
+!.env.example

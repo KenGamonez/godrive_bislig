@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { BUSINESS } from '../../data/business';
 import { Accordion, FinalCta, Reveal } from '../../components/site';
 import { useAppStore } from '../../store/AppStore';
 import { formatPeso } from '../../utils/booking';
@@ -29,7 +28,7 @@ export function FaqPage() {
     },
     {
       q: 'Where is pickup?',
-      a: `Pickup and service area is ${BUSINESS.pickup}. Exact pickup arrangements are confirmed with GoDrive after your booking request.`,
+      a: `Pickup and service area is ${settings.pickup}. Exact pickup arrangements are confirmed with GoDrive after your booking request.`,
     },
     {
       q: 'Can I rent with a driver?',
@@ -37,7 +36,7 @@ export function FaqPage() {
     },
     {
       q: 'How does booking work?',
-      a: `Choose a vehicle, select self-drive or with-driver, enter your dates, destination, and contact details, then submit. GoDrive reviews availability and confirms directly — currently at ${BUSINESS.phone}. ${settings.bookingNotice}`,
+      a: `Choose a vehicle, select self-drive or with-driver, enter your dates, destination, and contact details, then submit. GoDrive reviews availability and confirms directly — currently at ${settings.phone}. ${settings.bookingNotice}`,
     },
   ];
   return (
@@ -46,7 +45,7 @@ export function FaqPage() {
         <div className="container page-hero-inner">
           <span className="eyebrow">FAQ — 08 answers</span>
           <h1 className="h-section">Answers,<br />plainly stated.</h1>
-          <p className="lede">Only confirmed GoDrive information. Anything else is answered directly at {BUSINESS.phone}.</p>
+          <p className="lede">Only confirmed GoDrive information. Anything else is answered directly at {settings.phone}.</p>
           <span className="ghost-num" aria-hidden="true">?</span>
         </div>
       </section>
@@ -66,7 +65,7 @@ export function FaqPage() {
       <FinalCta
         eyebrow="Still curious?"
         title="Ask GoDrive directly."
-        copy={`Every question answered personally — call ${BUSINESS.phone} or send a booking request.`}
+        copy={`Every question answered personally — call ${settings.phone} or send a booking request.`}
         secondaryLabel="Contact"
         secondaryTo="/contact"
       />

@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Booking, RentalType } from '../types';
-import { VEHICLES } from '../data/business';
 import { useAppStore } from '../store/AppStore';
 import { formatDateLong, formatPeso } from '../utils/booking';
 import { RentalTypeSelector } from './showroom';
@@ -12,10 +11,10 @@ import { RentalTypeSelector } from './showroom';
    ============================================================ */
 
 export function RateExplorer({ compact = false }: { compact?: boolean }) {
-  const { settings, vehicleRates } = useAppStore();
+  const { settings, vehicleRates, activeFleet } = useAppStore();
   const [tab, setTab] = useState<RentalType>('self-drive');
-  const [vehicleId, setVehicleId] = useState(VEHICLES[0]?.id ?? '');
-  const vehicle = VEHICLES.find((v) => v.id === vehicleId) ?? VEHICLES[0];
+  const [vehicleId, setVehicleId] = useState(activeFleet[0]?.id ?? '');
+  const vehicle = activeFleet.find((v) => v.id === vehicleId) ?? activeFleet[0];
   const rates = vehicle ? vehicleRates(vehicle.id) : [];
   return (
     <div className={`ratex${compact ? ' compact' : ''}`}>
@@ -40,7 +39,7 @@ export function RateExplorer({ compact = false }: { compact?: boolean }) {
       {tab === 'self-drive' ? (
         <div className="ratex-list">
           <div className="ratex-vehicles" role="tablist" aria-label="Vehicles">
-            {VEHICLES.map((v) => (
+            {activeFleet.map((v) => (
               <button
                 key={v.id}
                 role="tab"
@@ -105,23 +104,49 @@ function matchesQuery(b: Booking, q: string): boolean {
 }
 
 export function MyBookingLookup({ initial = '' }: { initial?: string }) {
-  const { bookings } = useAppStore();
+  const { bookings, cloud, lookupBooking, addBooking, vehicleName } = useAppStore();
   const [query, setQuery] = useState(initial);
+  const [mobile, setMobile] = useState('');
   const [searched, setSearched] = useState(initial.trim().length > 0);
+  const [remote, setRemote] = useState<(Booking & { vehicleName?: string }) | null>(null);
+  const [looking, setLooking] = useState(false);
+  const [lookupError, setLookupError] = useState<string | null>(null);
 
   const results = useMemo(() => {
     if (!searched) return [];
     return bookings.filter((b) => matchesQuery(b, query)).slice(0, 5);
   }, [bookings, query, searched]);
 
+  const searchRemote = async () => {
+    if (!cloud) return;
+    setLooking(true);
+    setLookupError(null);
+    setRemote(null);
+    const res = await lookupBooking(query.trim(), mobile.trim() || query.trim());
+    setLooking(false);
+    if (res.error) {
+      setLookupError('Lookup failed — check your connection and try again.');
+      return;
+    }
+    if (res.booking) {
+      setRemote(res.booking);
+      addBooking(res.booking);
+    }
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSearched(true);
+    if (cloud) void searchRemote();
+  };
+
+  const shown: Array<Booking & { vehicleName?: string }> = remote ? [remote] : results;
+
   return (
     <div className="mybooking">
       <form
         className="mybooking-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setSearched(true);
-        }}
+        onSubmit={onSubmit}
       >
         <div className="field" style={{ flex: 1 }}>
           <label htmlFor="mb-q">Booking reference or mobile number</label>
@@ -133,24 +158,38 @@ export function MyBookingLookup({ initial = '' }: { initial?: string }) {
             onChange={(e) => {
               setQuery(e.target.value);
               setSearched(false);
+              setRemote(null);
             }}
             autoComplete="off"
           />
         </div>
-        <button className="btn btn-primary" type="submit">
-          Find <span className="arr" aria-hidden="true">→</span>
+        {cloud && (
+          <div className="field" style={{ flex: 1 }}>
+            <label htmlFor="mb-m">Mobile number <span style={{ fontWeight: 500, textTransform: 'none', letterSpacing: 0 }}>(for other devices)</span></label>
+            <input
+              id="mb-m"
+              type="tel"
+              placeholder="09XXXXXXXXX"
+              value={mobile}
+              onChange={(e) => setMobile(e.target.value)}
+              autoComplete="off"
+            />
+          </div>
+        )}
+        <button className="btn btn-primary" type="submit" disabled={looking}>
+          {looking ? 'Finding…' : <>Find <span className="arr" aria-hidden="true">→</span></>}
         </button>
       </form>
+      {lookupError && <p className="field-error mt-16" role="alert">{lookupError}</p>}
       {searched && (
         <div className="mybooking-results">
-          {results.length === 0 ? (
+          {shown.length === 0 && !looking ? (
             <p className="mybooking-empty">
-              No booking found for “{query.trim()}” on this device. References are stored locally in this browser only —
+              No booking found for “{query.trim()}”{cloud ? ' on this device or in GoDrive records' : ' on this device. References are stored locally in this browser only'} —
               check the exact reference from your confirmation, or call GoDrive directly.
             </p>
           ) : (
-            results.map((b) => {
-              const v = VEHICLES.find((x) => x.id === b.vehicleId);
+            shown.map((b) => {
               return (
                 <article key={b.id} className="mybooking-card">
                   <div className="mybooking-top">
@@ -158,7 +197,7 @@ export function MyBookingLookup({ initial = '' }: { initial?: string }) {
                     <span className={`badge badge-${b.status.toLowerCase()}`}>{b.status}</span>
                   </div>
                   <div className="mybooking-grid">
-                    <div><span>Vehicle</span><b>{v?.name ?? b.vehicleId}</b></div>
+                    <div><span>Vehicle</span><b>{b.vehicleName ?? vehicleName(b.vehicleId)}</b></div>
                     <div><span>Pickup</span><b>{formatDateLong(b.pickupDate)}</b></div>
                     <div><span>Return</span><b>{formatDateLong(b.returnDate)} · {b.rentalDays}d</b></div>
                     <div>
@@ -191,10 +230,10 @@ export function RentalTypeExplainer({
   value: RentalType;
   onChange: (v: RentalType) => void;
 }) {
-  const { settings } = useAppStore();
-  const amounts = VEHICLES.flatMap((v) => v.rates.map((r) => r.amountPerDay));
-  const lo = Math.min(...amounts);
-  const hi = Math.max(...amounts);
+  const { settings, activeFleet } = useAppStore();
+  const amounts = activeFleet.flatMap((v) => v.rates.map((r) => r.amountPerDay));
+  const lo = amounts.length > 0 ? Math.min(...amounts) : 0;
+  const hi = amounts.length > 0 ? Math.max(...amounts) : 0;
   return (
     <div>
       <RentalTypeSelector value={value} onChange={onChange} />

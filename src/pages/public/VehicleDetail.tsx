@@ -1,21 +1,20 @@
 import { useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
-import { VEHICLES } from '../../data/business';
 import { vehicleBySlug, vehicleMeta, vehicleSlug } from '../../data/fleet';
 import { Accordion, FinalCta, Reveal } from '../../components/site';
 import { RentalTypeExplainer } from '../../components/booking';
 import { VehicleGallery, VehiclePhoto, useVehiclePhotos } from '../../components/showroom';
 import { useAppStore } from '../../store/AppStore';
-import { formatPeso } from '../../utils/booking';
+import { formatPeso, telHref } from '../../utils/booking';
 import type { RentalType } from '../../types';
 
 export function VehicleDetailPage() {
   const { slug = '' } = useParams();
-  const vehicle = vehicleBySlug(slug);
-  const { vehicleStatus, settings, vehicleRates } = useAppStore();
+  const { vehicleStatus, settings, vehicleRates, fleet } = useAppStore();
+  const vehicle = fleet.find((v) => v.id === slug || vehicleSlug(v) === slug) ?? vehicleBySlug(slug);
   const [rental, setRental] = useState<RentalType>('self-drive');
 
-  if (!vehicle) return <Navigate to="/fleet" replace />;
+  if (!vehicle || vehicle.status === 'Inactive') return <Navigate to="/fleet" replace />;
 
   const meta = vehicleMeta(vehicle.id);
   const status = vehicleStatus[vehicle.id] ?? 'Available';
@@ -56,7 +55,7 @@ export function VehicleDetailPage() {
               <Link to={bookTo} className="btn btn-primary btn-block">
                 Book this car <span className="arr" aria-hidden="true">→</span>
               </Link>
-              <a className="btn btn-outline btn-block" href="tel:+639260621287">Call GoDrive</a>
+              <a className="btn btn-outline btn-block" href={telHref(settings.phone)}>Call GoDrive</a>
             </div>
             <div className="vpage-facts">
               <div><span>Category</span><b>{vehicle.bodyType}</b></div>
@@ -109,9 +108,12 @@ export function VehicleDetailPage() {
 }
 
 function NextVehicle({ currentId }: { currentId: string }) {
-  const i = VEHICLES.findIndex((v) => v.id === currentId);
-  const next = VEHICLES[(i + 1) % VEHICLES.length];
-  const { photos } = useVehiclePhotos(next.id);
+  const { activeFleet } = useAppStore();
+  const list = activeFleet.length > 0 ? activeFleet : [];
+  const i = list.findIndex((v) => v.id === currentId);
+  const next = list[(i + 1) % Math.max(list.length, 1)];
+  const { photos } = useVehiclePhotos(next?.id ?? '');
+  if (!next) return null;
   return (
     <Link to={`/fleet/${vehicleSlug(next)}`} className="vpage-next-card">
       <span className="fi-thumb sm">

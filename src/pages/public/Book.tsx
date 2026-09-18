@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import type { Booking, BookingDraft, SelfDriveZone, Vehicle, WithDriverZone } from '../../types';
-import { VEHICLES } from '../../data/business';
 import { vehicleMeta } from '../../data/fleet';
 import { StatusBadge } from '../../components/site';
 import { RentalTypeExplainer } from '../../components/booking';
@@ -40,12 +39,14 @@ function validZone(z: string | null): z is SelfDriveZone {
 
 /** CompactBookingFlow — the core reservation product. */
 export function BookPage() {
-  const { settings, vehicleStatus, vehicleRates, addBooking, upsertCustomerFromBooking } = useAppStore();
+  const { settings, vehicleStatus, vehicleRates, fleet, activeFleet, submitBooking, upsertCustomerFromBooking, cloud } = useAppStore();
   const [params] = useSearchParams();
 
   const [step, setStep] = useState(0);
   const [tried, setTried] = useState(false);
   const [done, setDone] = useState<Booking | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [draft, setDraft] = useState<BookingDraft>(() => {
     const typeParam = (params.get('type') ?? '').toLowerCase();
     const pickupParam = params.get('pickup') ?? '';
@@ -54,7 +55,7 @@ export function BookPage() {
     const zoneParam = params.get('zone');
     const dateOk = (d: string) => /^\d{4}-\d{2}-\d{2}$/.test(d);
     const withParam = typeParam === 'with' || typeParam === 'with-driver';
-    const vehicleOk = VEHICLES.some((v) => v.id === vehicleParam);
+    const vehicleOk = fleet.some((v) => v.id === vehicleParam);
     return {
       ...EMPTY,
       vehicleId: vehicleOk ? vehicleParam : '',
@@ -68,7 +69,7 @@ export function BookPage() {
   const set = <K extends keyof BookingDraft>(key: K, value: BookingDraft[K]) =>
     setDraft((d) => ({ ...d, [key]: value }));
 
-  const vehicle = VEHICLES.find((v) => v.id === draft.vehicleId);
+  const vehicle = fleet.find((v) => v.id === draft.vehicleId);
   const rates = vehicle ? vehicleRates(vehicle.id) : [];
   const { days, amount } = useMemo(() => estimateSelfDrive(draft, rates), [draft, rates]);
   const today = todayISO();
@@ -112,30 +113,45 @@ export function BookPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const submit = () => {
-    const ref = generateReference();
-    const rentalDays = rentalDaysBetween(draft.pickupDate, draft.returnDate);
-    const booking: Booking = {
-      ...draft,
-      destination: draft.destination.trim(),
-      fullName: draft.fullName.trim(),
-      mobile: draft.mobile.replace(/[\s-]/g, ''),
-      email: draft.email.trim(),
-      id: `b-${Date.now()}`,
-      reference: ref,
-      status: 'Pending',
-      rentalDays,
-      estimatedAmount: draft.rentalType === 'self-drive' ? amount : null,
-      createdAt: new Date().toISOString(),
-    };
-    addBooking(booking);
-    upsertCustomerFromBooking(booking);
-    setDone(booking);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const submit = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    setSubmitError(null);
+    // Retry once with a fresh reference in the (rare) case of a collision.
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const res = await submitBooking({
+        vehicleId: draft.vehicleId,
+        rentalType: draft.rentalType,
+        pickupDate: draft.pickupDate,
+        returnDate: draft.returnDate,
+        destination: draft.destination.trim(),
+        selfDriveZone: draft.selfDriveZone,
+        withDriverZone: draft.withDriverZone,
+        fullName: draft.fullName.trim(),
+        mobile: draft.mobile.replace(/[\s-]/g, ''),
+        email: draft.email.trim(),
+        notes: draft.notes.trim(),
+        reference: generateReference(),
+        rentalDays: rentalDaysBetween(draft.pickupDate, draft.returnDate),
+        estimatedAmount: draft.rentalType === 'self-drive' ? amount : null,
+      });
+      if (!res.error && res.booking) {
+        upsertCustomerFromBooking(res.booking);
+        setDone(res.booking);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        break;
+      }
+      const msg = res.error ?? 'Could not submit your request. Check your connection and try again.';
+      if (!/already used/i.test(msg) || attempt === 1) {
+        setSubmitError(msg);
+        break;
+      }
+    }
+    setSubmitting(false);
   };
 
   if (done) {
-    const v = VEHICLES.find((x) => x.id === done.vehicleId);
+    const v = fleet.find((x) => x.id === done.vehicleId);
     return (
       <section className="section">
         <div className="container" style={{ maxWidth: 820 }}>
@@ -144,8 +160,9 @@ export function BookPage() {
               <span className="eyebrow on-dark">Booking request received</span>
               <h2 className="mt-16">Thank you, {done.fullName.split(' ')[0]}.</h2>
               <p className="mt-16" style={{ color: '#c3cfe3', maxWidth: 560 }}>
-                GoDrive will review your request and confirm vehicle availability
-                directly. This demo stores your request locally in this browser only.
+                {cloud
+                  ? 'Your request was saved. GoDrive will review it and confirm vehicle availability directly.'
+                  : 'GoDrive will review your request and confirm vehicle availability directly. This demo stores your request locally in this browser only.'}
               </p>
               <span className="success-ref">{done.reference}</span>
             </div>
@@ -212,10 +229,10 @@ export function BookPage() {
               <div className="flow-pane">
                 <p className="flow-lede">Which car fits your trip?</p>
                 <div className="flow-cars">
-                  {VEHICLES.map((v) => (
+                  {activeFleet.map((v) => (
                     <CarPick
                       key={v.id}
-                      vehicleId={v.id}
+                      vehicle={v}
                       selected={draft.vehicleId === v.id}
                       onPick={() => set('vehicleId', v.id)}
                       status={vehicleStatus[v.id] ?? 'Available'}
@@ -352,6 +369,9 @@ export function BookPage() {
                   {draft.notes.trim() && <div className="kv"><span>Notes</span><b>{draft.notes}</b></div>}
                 </div>
                 <div className="note-box mt-24">{settings.bookingNotice}</div>
+                {submitError && (
+                  <p className="field-error mt-16" role="alert">{submitError}</p>
+                )}
               </div>
             )}
 
@@ -362,7 +382,9 @@ export function BookPage() {
               {step < STEPS.length - 1 ? (
                 <button className="btn btn-primary" onClick={goNext}>Continue <span className="arr" aria-hidden="true">→</span></button>
               ) : (
-                <button className="btn btn-primary" onClick={submit}>Submit Request <span className="arr" aria-hidden="true">→</span></button>
+                <button className="btn btn-primary" onClick={submit} disabled={submitting}>
+                  {submitting ? 'Submitting…' : <>Submit Request <span className="arr" aria-hidden="true">→</span></>}
+                </button>
               )}
             </div>
           </div>
@@ -408,7 +430,9 @@ export function BookPage() {
           {step < STEPS.length - 1 ? (
             <button className="btn btn-primary btn-sm" onClick={goNext}>Continue →</button>
           ) : (
-            <button className="btn btn-primary btn-sm" onClick={submit}>Submit →</button>
+            <button className="btn btn-primary btn-sm" onClick={submit} disabled={submitting}>
+              {submitting ? 'Submitting…' : 'Submit →'}
+            </button>
           )}
         </div>
       </div>
@@ -417,17 +441,16 @@ export function BookPage() {
 }
 
 function CarPick({
-  vehicleId,
+  vehicle: v,
   selected,
   onPick,
   status,
 }: {
-  vehicleId: string;
+  vehicle: Vehicle;
   selected: boolean;
   onPick: () => void;
   status: string;
 }) {
-  const v = VEHICLES.find((x) => x.id === vehicleId) as Vehicle;
   const { photos } = useVehiclePhotos(v.id);
   return (
     <button className={`car-pick${selected ? ' selected' : ''}`} onClick={onPick} aria-pressed={selected}>

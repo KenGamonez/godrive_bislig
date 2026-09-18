@@ -1,16 +1,26 @@
 import type { VehicleAvailability } from '../../types';
-import { VEHICLES } from '../../data/business';
 import { useAppStore } from '../../store/AppStore';
 import { formatDateLong } from '../../utils/booking';
 
 const ORDER: VehicleAvailability[] = ['Available', 'Reserved', 'Unavailable'];
+const LIVE_BOOKING = ['Pending', 'Confirmed', 'Ongoing'];
 
 export function AvailabilityPage() {
-  const { boardDates, overrides, setOverride, clearOverride, vehicleStatus } = useAppStore();
+  const { boardDates, shiftBoard, overrides, setOverride, clearOverride, vehicleStatus, fleet, bookings, cloud } = useAppStore();
+
+  const covering = (vehicleId: string, date: string) =>
+    bookings.find(
+      (b) =>
+        b.vehicleId === vehicleId &&
+        LIVE_BOOKING.includes(b.status) &&
+        b.pickupDate <= date &&
+        b.returnDate >= date,
+    ) ?? null;
 
   const statusFor = (vehicleId: string, date: string): { value: VehicleAvailability; overridden: boolean } => {
     const o = overrides.find((x) => x.vehicleId === vehicleId && x.date === date);
     if (o) return { value: o.status, overridden: true };
+    if (covering(vehicleId, date)) return { value: 'Reserved', overridden: false };
     return { value: vehicleStatus[vehicleId] ?? 'Available', overridden: false };
   };
 
@@ -22,16 +32,24 @@ export function AvailabilityPage() {
 
   return (
     <>
-      <span className="demo-tag">Demo availability board — click any cell to cycle status. Changes are local only.</span>
+      <span className="demo-tag">
+        {cloud
+          ? 'Rental calendar — bookings overlay live records; cell edits save day-blocks.'
+          : 'Demo availability board — click any cell to cycle status. Changes are local only.'}
+      </span>
       <div className="panel">
         <div className="panel-head">
-          <h3>7-day availability board</h3>
-          <button
-            className="btn btn-ghost btn-sm"
-            onClick={() => { for (const o of [...overrides]) clearOverride(o.vehicleId, o.date); }}
-          >
-            Reset overrides
-          </button>
+          <h3>Rental calendar · 7 days</h3>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn btn-ghost btn-sm" onClick={() => shiftBoard(-7)}>← Prev week</button>
+            <button className="btn btn-ghost btn-sm" onClick={() => shiftBoard(7)}>Next week →</button>
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={() => { for (const o of [...overrides]) clearOverride(o.vehicleId, o.date); }}
+            >
+              Reset overrides
+            </button>
+          </div>
         </div>
         <div style={{ padding: 20, overflowX: 'auto' }}>
           <div className="board">
@@ -41,16 +59,17 @@ export function AvailabilityPage() {
                 <div className="board-cell head" key={d}>{formatDateLong(d)}</div>
               ))}
             </div>
-            {VEHICLES.map((v) => (
+            {fleet.map((v) => (
               <div className="board-row" key={v.id}>
                 <div className="board-cell name">{v.name}</div>
                 {boardDates.map((d) => {
                   const { value, overridden } = statusFor(v.id, d);
+                  const booked = !overridden ? covering(v.id, d) : null;
                   return (
                     <div className="board-cell" key={d}>
                       <button className={`cell-btn s-${value}`} onClick={() => cycle(v.id, d)} title={`${v.name} on ${d}: ${value}. Click to change.`}>
                         {value}
-                        <small>{overridden ? 'edited' : 'fleet default'}</small>
+                        <small>{overridden ? 'edited' : booked ? booked.reference : 'fleet default'}</small>
                       </button>
                     </div>
                   );
@@ -61,7 +80,7 @@ export function AvailabilityPage() {
         </div>
       </div>
       <div className="note-box">
-        Cells start from each vehicle&apos;s fleet availability. Clicking a cell records a date-specific override stored locally in this browser.
+        Cells start from each vehicle&apos;s fleet availability{cloud ? ', overlaid with live booking periods' : ''}. Clicking a cell records a date-specific override{cloud ? ' saved to the database' : ' stored locally in this browser'}.
       </div>
     </>
   );

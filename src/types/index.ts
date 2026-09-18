@@ -21,7 +21,7 @@ export type BookingStatus =
   | 'Completed'
   | 'Cancelled';
 
-export type VehicleAvailability = 'Available' | 'Reserved' | 'Unavailable';
+export type VehicleAvailability = 'Available' | 'Reserved' | 'Unavailable' | 'Inactive';
 
 export type MaintenanceStatus = 'Good' | 'Scheduled' | 'In Shop';
 
@@ -51,6 +51,10 @@ export interface Vehicle {
   blurb: string;
   /** Per-vehicle self-drive rates — the business prices each unit by zone. */
   rates: VehicleRate[];
+  /** Backend-managed fleet status (absent = canonical display default). */
+  status?: VehicleAvailability;
+  /** Optional direct photo URL (falls back to catalog photos, then SVG art). */
+  photoUrl?: string;
 }
 
 export interface VehicleRate {
@@ -129,4 +133,61 @@ export interface BusinessSettings {
 export interface AdminSession {
   loggedIn: boolean;
   name: string;
+}
+
+/* ---------- Backend (Supabase) records ---------- */
+
+export type ContactMessageStatus = 'unread' | 'read' | 'replied' | 'archived';
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  subject: string;
+  message: string;
+  status: ContactMessageStatus;
+  createdAt: string; // ISO
+}
+
+export interface NewContactMessage {
+  name: string;
+  phone: string;
+  email?: string;
+  subject: string;
+  message: string;
+}
+
+export type PaymentMethod = 'Cash' | 'GCash' | 'Bank Transfer' | 'Other';
+
+export interface BookingPayment {
+  id: string;
+  bookingId: string;
+  amount: number;
+  method: PaymentMethod;
+  paidAt: string; // yyyy-mm-dd
+  note: string;
+  createdAt: string; // ISO
+}
+
+export interface NewBookingPayment {
+  bookingId: string;
+  amount: number;
+  method: PaymentMethod;
+  paidAt: string;
+  note?: string;
+}
+
+export interface NewVehicleInput {
+  name: string;
+  bodyType: string;
+  transmission: 'Automatic' | 'Manual';
+  seats: string;
+  capacity?: string;
+  year?: number;
+  silhouette: 'mpv' | 'sedan';
+  blurb: string;
+  photoUrl?: string;
+  status: VehicleAvailability;
+  rates: VehicleRate[];
 }

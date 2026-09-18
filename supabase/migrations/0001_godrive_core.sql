@@ -1,0 +1,14 @@
+-- GoDrive Bislig core backend (V1) — reference copy of the applied migration.
+-- Applied via Supabase migration "godrive_core_schema".
+-- Public catalog is anonymously readable; all writes are restricted.
+-- Admin access = authenticated (owner account; public signup stays disabled).
+-- Anonymous visitors may only: read vehicles/settings, insert contact
+-- messages, and call create_booking / get_booking_by_reference.
+--
+-- NOTE: seed INSERTs below use ON CONFLICT DO NOTHING and are safe to skip
+-- on existing databases. Canonical seed values live in src/data/business.ts.
+
+-- See the applied migration for the full statement list:
+-- vehicles, customers, bookings, booking_payments, contact_messages,
+-- availability_overrides, business_settings, RLS policies,
+-- create_booking(jsonb), get_booking_by_reference(text, text), seeds.

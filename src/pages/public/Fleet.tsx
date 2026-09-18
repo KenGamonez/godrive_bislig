@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import type { Vehicle } from '../../types';
-import { VEHICLES } from '../../data/business';
 import { vehicleMeta, vehicleSlug } from '../../data/fleet';
 import { FinalCta, Reveal, SectionHead } from '../../components/site';
 import { VehicleModal, useVehicleModal } from '../../components/fleet';
@@ -10,15 +9,16 @@ import { formatPeso } from '../../utils/booking';
 
 export function FleetPage() {
   const modal = useVehicleModal();
-  const { vehicleStatus } = useAppStore();
+  const { vehicleStatus, activeFleet, cloud } = useAppStore();
+  const count = String(activeFleet.length).padStart(2, '0');
   return (
     <>
       <section className="page-hero slim">
         <div className="container page-hero-inner">
-          <span className="eyebrow">Cars — 04 units</span>
+          <span className="eyebrow">Cars — {count} units</span>
           <h1 className="h-section">Choose your car.</h1>
           <p className="lede">One tap opens photography, specs and booking. Only specifications provided by GoDrive are listed.</p>
-          <span className="ghost-num" aria-hidden="true">04</span>
+          <span className="ghost-num" aria-hidden="true">{count}</span>
         </div>
       </section>
       <section className="section section-tight">
@@ -27,15 +27,17 @@ export function FleetPage() {
             <SectionHead
               eyebrow="The lineup"
               title="Every unit. At a glance."
-              lede="Availability shown is a local demo — GoDrive confirms every request."
+              lede={cloud
+                ? 'Live availability below — GoDrive confirms every request.'
+                : 'Availability shown is a local demo — GoDrive confirms every request.'}
             />
           </Reveal>
           <div className="cars-grid">
-            {VEHICLES.map((v, i) => (
+            {activeFleet.map((v, i) => (
               <CarCard
                 key={v.id}
                 index={i}
-                vehicleId={v.id}
+                vehicle={v}
                 status={vehicleStatus[v.id] ?? 'Available'}
                 onQuickView={() => modal.open(v)}
               />
@@ -68,16 +70,15 @@ export function FleetPage() {
 
 function CarCard({
   index,
-  vehicleId,
+  vehicle: v,
   status,
   onQuickView,
 }: {
   index: number;
-  vehicleId: string;
+  vehicle: Vehicle;
   status: string;
   onQuickView: () => void;
 }) {
-  const v = VEHICLES.find((x) => x.id === vehicleId) as Vehicle;
   const { photos } = useVehiclePhotos(v.id);
   return (
     <Reveal delay={(index % 2) * 0.05}>
