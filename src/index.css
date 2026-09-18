@@ -47,6 +47,19 @@
   --shadow-lift: 0 18px 50px rgba(6, 15, 36, 0.22);
   --font-display: 'Archivo', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Boutique botanical accents â€” homepage art direction only.
+     Deep forest + ivory + sage + sand; restrained, never neon. */
+  --font-serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --forest-950: #0a201a;
+  --forest-900: #102e23;
+  --forest-800: #17402f;
+  --forest-700: #1f5240;
+  --sage-600: #5f7f6c;
+  --sage-300: #a9c2b2;
+  --sage-100: #e3ebe4;
+  --ivory: #faf7f0;
+  --sand: #f2ecdd;
+  --sand-line: #e2d8bf;
   --max: 1200px;
   --wide: 1320px;
   --ease: cubic-bezier(0.22, 0.61, 0.21, 1);
@@ -1514,4 +1527,75 @@ li:first-child .omsg-row { border-top: 0; }
   .co-book { margin: 36px 0 52px; padding: 20px 18px; }
   .co-feature-body { padding: 20px 18px; }
   .co-steps li { padding: 22px 20px; }
+}
+
+/* ============================================================
+   Boutique second pass — botanical + ivory homepage art direction.
+   Scoped to commercial homepage bands only. Navy system elsewhere
+   (header, booking flow, admin, footer) is untouched.
+   ============================================================ */
+
+/* ---- Hero: deep botanical instead of navy ---- */
+.co-hero { background: var(--forest-900); }
+.co-hero::before {
+  background-image: linear-gradient(rgba(169,194,178,0.06) 1px, transparent 1px);
+}
+.co-hero .eyebrow { color: var(--sage-300); }
+.co-hero .eyebrow::before { background: var(--sage-300); }
+.co-hero-accent {
+  font-family: var(--font-serif); font-style: italic; font-weight: 500;
+  text-transform: none; letter-spacing: -0.01em; color: var(--ivory);
+}
+.co-hero-sub { color: #cbd8cb; }
+.co-hero-facts dt { color: var(--sage-300); }
+.co-hero-facts dd { color: var(--ivory); }
+.co-hero .photo-img.co-hero-photo, .co-hero .photo-placeholder.co-hero-photo {
+  border-radius: 18px; border-color: rgba(250,247,240,0.22);
+}
+.co-hero-card { background: #fffdf8; border-radius: 14px; }
+
+/* ---- Hero booking panel: warm ivory ---- */
+.co-book { background: #fffdf8; border-radius: 12px; }
+
+/* ---- Catalog band: warm ivory, softened cards ---- */
+.section.co-catalog { background: var(--ivory); }
+.co-catalog .eyebrow { color: var(--forest-800); }
+.co-catalog .eyebrow::before { background: var(--forest-800); }
+.co-catalog .car-card { border-radius: 14px; }
+.co-catalog .car-card .car-media { border-radius: 14px 14px 0 0; }
+
+/* ---- Feature band: deep-green signature moment ---- */
+.section.co-greenband { background: var(--forest-900); }
+.co-greenband .eyebrow { color: var(--sage-300); }
+.co-greenband .eyebrow::before { background: var(--sage-300); }
+.co-greenband .h-section { color: var(--ivory); }
+.co-greenband .co-feature { border-radius: 14px; border-color: rgba(250,247,240,0.14); }
+.co-greenband .co-feature-info { background: var(--forest-800); border-color: var(--forest-800); }
+.co-greenband .co-feature-info h3 { color: var(--ivory); }
+.co-greenband .co-feature-info p, .co-greenband .co-feature-info .check-list li { color: #cbd8cb; }
+.co-greenband .co-feature-info .check-list li::before { color: var(--sage-300); }
+
+/* ---- Process band: editorial serif numerals ---- */
+.co-process .eyebrow { color: var(--forest-800); }
+.co-process .eyebrow::before { background: var(--forest-800); }
+.co-step-num {
+  font-family: var(--font-serif); font-weight: 500; font-size: 30px;
+  letter-spacing: 0; color: var(--forest-800);
+}
+
+/* ---- Trust band: warm sand closing ---- */
+.section.co-trustband { background: var(--sand); }
+.co-trustband .eyebrow { color: var(--forest-800); }
+.co-trustband .eyebrow::before { background: var(--forest-800); }
+.co-trust { border-top: 2px solid var(--forest-800); }
+
+/* ---- Boutique pass on small screens ---- */
+@media (max-width: 640px) {
+  .co-hero .photo-img.co-hero-photo, .co-hero .photo-placeholder.co-hero-photo { border-radius: 14px; }
+  .co-hero-card { border-radius: 12px; }
+  .co-book { border-radius: 10px; }
+  .co-catalog .car-card { border-radius: 12px; }
+  .co-catalog .car-card .car-media { border-radius: 12px 12px 0 0; }
+  .co-greenband .co-feature { border-radius: 12px; }
+  .co-step-num { font-size: 26px; }
 }

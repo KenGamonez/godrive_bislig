@@ -124,7 +124,7 @@ export function HomePage() {
         <div className="wrap co-hero-grid">
           <div className="rise">
             <span className="eyebrow on-dark">GoDrive Car Rental · Bislig</span>
-            <h1 className="co-hero-title mt-16">Your Ride.<br />Your Journey.<br />Your Drive.</h1>
+            <h1 className="co-hero-title mt-16">Your Ride.<br />Your Journey.<br /><em className="co-hero-accent">Your Drive.</em></h1>
             <p className="co-hero-sub mt-24">
               Clean, well-maintained vehicles for self-drive and with-driver
               rentals — in Bislig and beyond.
@@ -165,7 +165,7 @@ export function HomePage() {
       </section>
 
       {/* ---------- FLEET SHOWCASE ---------- */}
-      <section className="section">
+      <section className="section co-catalog">
         <div className="container">
           <Reveal>
             <span className="eyebrow">The lineup</span>
@@ -183,7 +183,7 @@ export function HomePage() {
       </section>
 
       {/* ---------- RENTAL OPTIONS FEATURE ---------- */}
-      <section className="section section-soft">
+      <section className="section co-greenband">
         <div className="container">
           <Reveal>
             <span className="eyebrow">Two ways to travel</span>
@@ -241,7 +241,7 @@ export function HomePage() {
       </section>
 
       {/* ---------- HOW IT WORKS ---------- */}
-      <section className="section">
+      <section className="section co-process">
         <div className="container">
           <Reveal>
             <span className="eyebrow">How it works</span>
@@ -265,7 +265,7 @@ export function HomePage() {
       </section>
 
       {/* ---------- TRUST (verified business facts only) ---------- */}
-      <section className="section section-soft">
+      <section className="section co-trustband">
         <div className="container">
           <Reveal>
             <span className="eyebrow">Why GoDrive</span>
