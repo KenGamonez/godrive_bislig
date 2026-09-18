@@ -695,19 +695,11 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
   .duet-col { padding: 38px 24px; }
   .duet-col .btn { width: 100%; }
   .ledger-row { padding: 24px 2px; }
-  .pstep { padding: 10px 4px; }
-  .pstep .n { font-size: 11px; }
   .final-grid { padding: 68px 0; }
   .wd-panel { padding: 36px 24px; }
   .wd-row { flex-direction: column; gap: 4px; }
   .wd-row b { font-size: 20px; }
-  .hero-ctas .btn { flex: 1 1 auto; }
   .split-head { margin-bottom: 36px; }
-  .book-head .kick { font-size: 10.5px; letter-spacing: 0.14em; }
-}
-@media (max-width: 479px) {
-  .hero-ctas { flex-direction: column; }
-  .hero-ctas .btn { width: 100%; }
 }
 @media (min-width: 720px) and (max-width: 1023px) {
   .lineup-row { grid-template-columns: 1fr 1fr; }
