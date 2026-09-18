@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { BUSINESS, VEHICLES } from '../../data/business';
 import { fleetStartingRate } from '../../data/fleet';
 import { VehicleCarousel } from '../../components/showroom';
 import { VehicleModal, useVehicleModal } from '../../components/fleet';
@@ -23,19 +22,11 @@ export function HomePage() {
           <div className="dash-top rise">
             <span className="dash-brand">GoDrive</span>
             <span className="dash-loc">Car Rental · Bislig</span>
-            <span className="dash-live"><i /> Fleet ready</span>
           </div>
 
           <div className="dash-head rise" style={{ ['--d' as never]: '0.06s' }}>
             <div>
               <h1 className="dash-title">Book a car.</h1>
-              <p className="dash-sub">
-                {VEHICLES.length} vehicles · from {formatPeso(fleetStartingRate())} / day · {BUSINESS.pickup}
-              </p>
-            </div>
-            <div className="dash-head-side">
-              <a href={BUSINESS.phoneHref}>{BUSINESS.phone}</a>
-              <span>Direct confirmation</span>
             </div>
           </div>
 
