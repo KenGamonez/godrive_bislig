@@ -19,14 +19,10 @@ export function HomePage() {
     <>
       <section className="dash">
         <div className="wrap dash-inner">
-          <div className="dash-top rise">
-            <span className="dash-brand">GoDrive</span>
-            <span className="dash-loc">Car Rental · Bislig</span>
-          </div>
-
           <div className="dash-head rise" style={{ ['--d' as never]: '0.06s' }}>
             <div>
               <h1 className="dash-title">Book a car.</h1>
+              <p className="dash-tag">Car Rental · Bislig</p>
             </div>
           </div>
 

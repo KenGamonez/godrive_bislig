@@ -387,7 +387,7 @@ export function SiteHeader() {
       )}
       {!open && location.pathname !== '/book' && (
         <div className="mobile-book">
-          <Link to="/book" className="btn btn-primary btn-block">Book a Vehicle</Link>
+          <Link to="/book" className="btn btn-ink btn-block">Book a vehicle</Link>
         </div>
       )}
     </>
