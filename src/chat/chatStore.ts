@@ -71,7 +71,37 @@ export function getVisitorToken(): string {
 type Listener = () => void;
 const listeners = new Set<Listener>();
 
+/**
+ * useSyncExternalStore requires a CACHED snapshot: returning a fresh object
+ * on every call makes React re-render in an infinite loop (blank page).
+ * The cache refreshes only when the stored payload actually changes.
+ */
+let cachedState: ChatState | null = null;
+let cachedJson = '';
+
+function snapshot(): ChatState {
+  if (!cachedState) {
+    cachedState = readState();
+    try {
+      cachedJson = JSON.stringify(cachedState);
+    } catch {
+      cachedJson = '';
+    }
+  }
+  return cachedState;
+}
+
 function emit(): void {
+  const fresh = readState();
+  let json = '';
+  try {
+    json = JSON.stringify(fresh);
+  } catch {
+    return;
+  }
+  if (json === cachedJson && cachedState) return;
+  cachedJson = json;
+  cachedState = fresh;
   for (const l of listeners) l();
 }
 
@@ -82,14 +112,16 @@ if (typeof window !== 'undefined') {
 }
 
 function mutate(fn: (s: ChatState) => ChatState): ChatState {
-  const next = fn(readState());
+  const next = fn(snapshot());
+  cachedState = next;
+  try {
+    cachedJson = JSON.stringify(next);
+  } catch {
+    cachedJson = '';
+  }
   writeState(next);
-  emit();
+  for (const l of listeners) l();
   return next;
-}
-
-function snapshot(): ChatState {
-  return readState();
 }
 
 function subscribe(listener: Listener): () => void {
