@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FinalCta, Reveal } from '../../components/site';
 import { VehicleModal, useVehicleModal } from '../../components/fleet';
 import { VehiclePhoto, useVehiclePhotos } from '../../components/showroom';
@@ -109,6 +109,76 @@ function ShowcaseCard({ vehicleId, index }: { vehicleId: string; index: number }
   );
 }
 
+function InfoRows() {
+  const { activeFleet, settings } = useAppStore();
+  const navigate = useNavigate();
+  const [ref, setRef] = useState('');
+
+  const modelRanges = activeFleet.map((v) => {
+    const amounts = v.rates.map((r) => r.amountPerDay);
+    const lo = amounts.length > 0 ? Math.min(...amounts) : v.startingRatePerDay;
+    const hi = amounts.length > 0 ? Math.max(...amounts) : v.startingRatePerDay;
+    return { name: v.name, lo, hi };
+  });
+  const wdAmounts = settings.withDriverRates.map((r) => r.amount);
+  const wdLo = wdAmounts.length > 0 ? Math.min(...wdAmounts) : 0;
+  const wdHi = wdAmounts.length > 0 ? Math.max(...wdAmounts) : 0;
+  const fleetLo = modelRanges.length > 0 ? Math.min(...modelRanges.map((m) => m.lo)) : 0;
+
+  return (
+    <section className="hrows">
+      <div className="container">
+        <Link to="/rates" className="hrow">
+          <span className="hrow-label">Rates</span>
+          <span className="hrow-main">
+            Self-drive from {formatPeso(fleetLo)} / day
+            <small>
+              {modelRanges.map((m) => `${m.name.split(' ').slice(-2).join(' ')} ${formatPeso(m.lo)}–${formatPeso(m.hi)}`).join(' · ')}
+              {wdAmounts.length > 0 && ` · With-driver ${formatPeso(wdLo)}–${formatPeso(wdHi)}`}
+            </small>
+          </span>
+          <span className="hrow-go" aria-hidden="true">→</span>
+        </Link>
+        <div className="hrow hrow-static">
+          <span className="hrow-label">My booking</span>
+          <span className="hrow-main">
+            Track your reservation
+            <small>Enter your booking reference to look up status.</small>
+            <span className="hrow-lookup">
+              <input
+                type="text"
+                value={ref}
+                onChange={(e) => setRef(e.target.value)}
+                placeholder="e.g. GD-XXXXXX"
+                aria-label="Booking reference"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && ref.trim()) navigate(`/bookings?ref=${encodeURIComponent(ref.trim())}`);
+                }}
+              />
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                disabled={!ref.trim()}
+                onClick={() => ref.trim() && navigate(`/bookings?ref=${encodeURIComponent(ref.trim())}`)}
+              >
+                Look up →
+              </button>
+            </span>
+          </span>
+        </div>
+        <Link to="/rental-options" className="hrow">
+          <span className="hrow-label">Requirements</span>
+          <span className="hrow-main">
+            Driver&apos;s license + proof of income
+            <small>Self-drive only. With-driver needs none.</small>
+          </span>
+          <span className="hrow-go" aria-hidden="true">→</span>
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 export function HomePage() {
   const modal = useVehicleModal();
   const { settings, activeFleet, fleetStartingRate } = useAppStore();
@@ -123,17 +193,18 @@ export function HomePage() {
       <section className="co-hero">
         <div className="wrap co-hero-grid">
           <div className="rise">
-            <span className="eyebrow on-dark">GoDrive Car Rental · Bislig</span>
-            <h1 className="co-hero-title mt-16">Your Ride.<br />Your Journey.<br /><em className="co-hero-accent">Your Drive.</em></h1>
+            <span className="eyebrow">GoDrive Car Rental · Bislig</span>
+            <h1 className="co-hero-title mt-16">Book a car.</h1>
+            <p className="co-hero-tag mt-12">Car Rental · Bislig</p>
             <p className="co-hero-sub mt-24">
               Clean, well-maintained vehicles for self-drive and with-driver
               rentals — in Bislig and beyond.
             </p>
             <div className="co-hero-ctas mt-32">
-              <Link to="/book" className="btn btn-accent">
+              <Link to="/book" className="btn btn-primary">
                 Book a Vehicle <span className="arr" aria-hidden="true">→</span>
               </Link>
-              <Link to="/fleet" className="btn btn-outline-light">Explore Fleet</Link>
+              <Link to="/fleet" className="btn btn-outline">Explore Fleet</Link>
             </div>
             <dl className="co-hero-facts mt-32">
               <div><dt>Pickup</dt><dd>{settings.pickup}</dd></div>
@@ -182,6 +253,8 @@ export function HomePage() {
         </div>
       </section>
 
+      {/* ---------- RATES / BOOKING / REQUIREMENTS ---------- */}
+      <InfoRows />
       {/* ---------- RENTAL OPTIONS FEATURE ---------- */}
       <section className="section co-greenband">
         <div className="container">

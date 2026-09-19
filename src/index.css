@@ -971,8 +971,8 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
 @media (min-width: 860px) { .cars-grid { grid-template-columns: 1fr 1fr; } }
 .car-card { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: #fff; transition: box-shadow 0.25s ease, transform 0.25s var(--ease); }
 .car-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
-.car-media { position: relative; display: block; background: var(--navy-900); padding: 26px 22px 10px; }
-.car-num { position: absolute; top: 2px; left: 12px; font-family: var(--font-display); font-weight: 900; font-size: 64px; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.18); line-height: 1; }
+.car-media { position: relative; display: block; background: var(--bg-tint); border-bottom: 1px solid var(--line-soft); padding: 26px 22px 10px; }
+.car-num { position: absolute; top: 2px; left: 12px; font-family: var(--font-display); font-weight: 900; font-size: 64px; color: var(--line-soft); -webkit-text-stroke: 1px var(--line); line-height: 1; }
 .car-body { padding: 22px; display: grid; gap: 8px; }
 .car-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .car-tag { font-size: 11px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brand-800); display: inline-flex; align-items: center; gap: 8px; }
@@ -1242,6 +1242,18 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
 .hrow-main { font-family: var(--font-display); font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .hrow-main small { display: block; font-family: var(--font-body); font-weight: 400; font-size: 13.5px; color: var(--muted); margin-top: 3px; }
 .hrow-go { font-size: 19px; color: var(--brand-800); text-align: right; }
+.hrow-static:hover { background: none; padding-left: 0; }
+.hrow-lookup { display: flex; gap: 10px; margin-top: 14px; max-width: 460px; }
+.hrow-lookup input {
+  flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 0 14px; min-height: 44px; font-size: 15px; background: #fff; color: var(--ink);
+}
+.hrow-lookup input:focus { outline: none; border-color: var(--brand-700); box-shadow: 0 0 0 3px var(--brand-50); }
+.hrow-lookup .btn { flex-shrink: 0; }
+@media (max-width: 560px) {
+  .hrow-lookup { flex-direction: column; }
+  .hrow-lookup .btn { width: 100%; }
+}
 @media (max-width: 640px) {
   .hrows { padding-bottom: 56px; }
   .hrow { grid-template-columns: 1fr 24px; gap: 8px; padding: 24px 0; }
@@ -1403,14 +1415,14 @@ li:first-child .omsg-row { border-top: 0; }
    ============================================================ */
 
 /* ---- Slim utility strip (desktop only) ---- */
-.co-topstrip { display: none; background: var(--navy-950); color: #a9bcdf; font-size: 12px; }
+.co-topstrip { display: none; background: #fff; color: var(--muted); font-size: 12px; border-bottom: 1px solid var(--line-soft); }
 @media (min-width: 1024px) {
   .co-topstrip { display: block; }
   .co-topstrip-inner {
     display: flex; justify-content: space-between; align-items: center; gap: 16px;
     padding-top: 8px; padding-bottom: 8px;
   }
-  .co-topstrip a { color: #fff; text-decoration: none; font-weight: 700; }
+  .co-topstrip a { color: var(--brand-900); text-decoration: none; font-weight: 700; }
   .co-topstrip a:hover { text-decoration: underline; }
 }
 
@@ -1530,29 +1542,32 @@ li:first-child .omsg-row { border-top: 0; }
 }
 
 /* ============================================================
-   Boutique second pass � botanical + ivory homepage art direction.
-   Scoped to commercial homepage bands only. Navy system elsewhere
-   (header, booking flow, admin, footer) is untouched.
+   White-dominated commercial system.
+   White body · navy typography/structure · blue action accents ·
+   green availability/status accents · navy footer anchor.
    ============================================================ */
 
-/* ---- Hero: deep botanical instead of navy ---- */
-.co-hero { background: var(--forest-900); }
+/* ---- Hero: white catalog opening ---- */
+.co-hero { background: #fff; color: var(--ink); }
 .co-hero::before {
-  background-image: linear-gradient(rgba(169,194,178,0.06) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(20,33,72,0.05) 1px, transparent 1px);
 }
-.co-hero .eyebrow { color: var(--sage-300); }
-.co-hero .eyebrow::before { background: var(--sage-300); }
-.co-hero-accent {
-  font-family: var(--font-serif); font-style: italic; font-weight: 500;
-  text-transform: none; letter-spacing: -0.01em; color: var(--ivory);
+.co-hero .eyebrow { color: var(--brand-800); }
+.co-hero .eyebrow::before { background: var(--brand-800); }
+.co-hero-title { color: var(--navy-900); }
+.co-hero-tag {
+  display: flex; align-items: center; gap: 12px;
+  font-family: var(--font-display); font-size: 13px; font-weight: 800;
+  letter-spacing: 0.28em; text-transform: uppercase; color: var(--navy-900);
 }
-.co-hero-sub { color: #cbd8cb; }
-.co-hero-facts dt { color: var(--sage-300); }
-.co-hero-facts dd { color: var(--ivory); }
+.co-hero-tag::before { content: ''; width: 36px; height: 2px; background: var(--brand-800); flex-shrink: 0; }
+.co-hero-sub { color: var(--muted); }
+.co-hero-facts dt { color: var(--faint); }
+.co-hero-facts dd { color: var(--navy-900); }
 .co-hero .photo-img.co-hero-photo, .co-hero .photo-placeholder.co-hero-photo {
-  border-radius: 18px; border-color: rgba(250,247,240,0.22);
+  border-radius: 18px; border-color: var(--line);
 }
-.co-hero-card { background: #fffdf8; border-radius: 14px; }
+.co-hero-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; }
 
 /* ---- Hero booking panel: warm ivory ---- */
 .co-book { background: #fffdf8; border-radius: 12px; }
@@ -1564,16 +1579,15 @@ li:first-child .omsg-row { border-top: 0; }
 .co-catalog .car-card { border-radius: 14px; }
 .co-catalog .car-card .car-media { border-radius: 14px 14px 0 0; }
 
-/* ---- Feature band: deep-green signature moment ---- */
-.section.co-greenband { background: var(--forest-900); }
-.co-greenband .eyebrow { color: var(--sage-300); }
-.co-greenband .eyebrow::before { background: var(--sage-300); }
-.co-greenband .h-section { color: var(--ivory); }
-.co-greenband .co-feature { border-radius: 14px; border-color: rgba(250,247,240,0.14); }
-.co-greenband .co-feature-info { background: var(--forest-800); border-color: var(--forest-800); }
-.co-greenband .co-feature-info h3 { color: var(--ivory); }
-.co-greenband .co-feature-info p, .co-greenband .co-feature-info .check-list li { color: #cbd8cb; }
-.co-greenband .co-feature-info .check-list li::before { color: var(--sage-300); }
+/* ---- Feature band: light editorial moment ---- */
+.section.co-greenband { background: #fff; }
+.co-greenband .eyebrow { color: var(--brand-800); }
+.co-greenband .eyebrow::before { background: var(--brand-800); }
+.co-greenband .co-feature { border-radius: 14px; }
+.co-greenband .co-feature-info { background: var(--bg-tint); border-color: var(--line); }
+.co-greenband .co-feature-info h3 { color: var(--navy-900); }
+.co-greenband .co-feature-info p, .co-greenband .co-feature-info .check-list li { color: var(--muted); }
+.co-greenband .co-feature-info .check-list li::before { color: var(--green); }
 
 /* ---- Process band: editorial serif numerals ---- */
 .co-process .eyebrow { color: var(--forest-800); }
