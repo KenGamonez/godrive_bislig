@@ -483,22 +483,25 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
 
 /* ---------- Footer ---------- */
 .site-footer { background: var(--navy-950); color: #c3cfe3; overflow: hidden; }
-.footer-grid { display: grid; gap: 40px; padding: 88px 0 60px; }
-@media (max-width: 640px) { .footer-grid { gap: 48px; } }
+.footer-grid { display: grid; gap: 36px; padding: 60px 0 48px; }
+@media (min-width: 640px) and (max-width: 899px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 36px 32px; } }
+@media (max-width: 639px) { .footer-grid { gap: 32px; padding: 48px 0 40px; } }
 @media (min-width: 900px) { .footer-grid { grid-template-columns: 1.4fr 0.8fr 0.8fr 1fr; gap: 48px; } }
+.footer-tagline { font-size: 14px; max-width: 300px; margin: 16px 0 0; line-height: 1.65; color: #c3cfe3; }
+.footer-social { display: flex; gap: 10px; margin-top: 18px; }
+.footer-social a {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border: 1px solid rgba(255,255,255,0.22);
+  border-radius: var(--radius); color: #c3cfe3;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.footer-social a:hover { color: #fff; border-color: rgba(255,255,255,0.55); background: rgba(255,255,255,0.06); }
 .site-footer h4 { color: #fff; font-size: 11.5px; letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 18px; }
 .site-footer a { color: #c3cfe3; text-decoration: none; transition: color 0.2s ease; }
 .site-footer a:hover { color: #fff; }
 .footer-links { list-style: none; margin: 0; padding: 0; display: grid; gap: 11px; font-size: 14.5px; }
 .footer-contact b { color: #fff; font-size: 22px; font-family: var(--font-display); display: block; margin: 4px 0 2px; }
-.footer-word {
-  font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
-  font-size: clamp(64px, 14.5vw, 196px); line-height: 0.9; letter-spacing: -0.02em;
-  color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.16);
-  text-align: center; user-select: none; margin: 8px 0 -8px; white-space: nowrap;
-}
-@supports not (-webkit-text-stroke: 1px black) { .footer-word { color: rgba(255,255,255,0.07); } }
-.footer-bottom { border-top: 1px solid rgba(255,255,255,0.12); padding: 22px 0; font-size: 13px; color: #8fa3c8; }
+.footer-bottom { border-top: 1px solid rgba(255,255,255,0.12); padding: 18px 0; font-size: 12.5px; color: #8fa3c8; }
 .footer-bottom-inner { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
 
 /* ---------- Page hero ---------- */

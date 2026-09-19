@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { BUSINESS } from '../data/business';
 import { useAppStore } from '../store/AppStore';
 import { telHref } from '../utils/booking';
 
@@ -410,6 +409,14 @@ export function SiteHeader() {
   );
 }
 
+function FacebookIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true">
+      <path d="M13.5 21v-7h2.4l.4-3h-2.8V9.1c0-.9.3-1.5 1.6-1.5h1.3V4.9c-.3 0-1.2-.1-2.2-.1-2.2 0-3.7 1.3-3.7 3.8V11H8v3h2.5v7h3z" />
+    </svg>
+  );
+}
+
 export function SiteFooter() {
   const { settings } = useAppStore();
   return (
@@ -419,7 +426,12 @@ export function SiteFooter() {
           <Link to="/" className="brand" style={{ textDecoration: 'none' }} aria-label="GoDrive — home">
             <BrandLogo onDark />
           </Link>
-          <p style={{ fontSize: 14.5, maxWidth: 400, marginTop: 18, lineHeight: 1.7 }}>{BUSINESS.description}</p>
+          <p className="footer-tagline">Reliable and affordable car rental services in Bislig.</p>
+          <div className="footer-social">
+            <a href={settings.facebookUrl} target="_blank" rel="noreferrer" aria-label="GoDrive Bislig on Facebook">
+              <FacebookIcon />
+            </a>
+          </div>
         </div>
         <div>
           <h4>Explore</h4>
@@ -448,9 +460,6 @@ export function SiteFooter() {
             Book a Vehicle <span className="arr" aria-hidden="true">→</span>
           </Link>
         </div>
-      </div>
-      <div className="container" aria-hidden="true">
-        <div className="footer-word">GoDrive</div>
       </div>
       <div className="footer-bottom">
         <div className="container footer-bottom-inner">
